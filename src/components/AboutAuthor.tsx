@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, BookOpen, ExternalLink, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
 
 interface AboutAuthorProps {
@@ -11,90 +11,88 @@ interface AboutAuthorProps {
 export const AboutAuthor: React.FC<AboutAuthorProps> = ({ 
   onOpenContact,
   config = SITE_CONFIG,
-  books = config.books || SITE_CONFIG.books,
 }) => {
-  const [showFullBio, setShowFullBio] = useState(false);
+  const [showExtendedBio, setShowExtendedBio] = useState(false);
 
   return (
-    <section id="about" className="bg-[#FAF7F2] py-16 md:py-24 border-b border-[#E8E1D4]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          {/* Left Column: Author Bio & Details */}
+    <section id="about" className="relative bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-200/70 overflow-hidden">
+      
+      {/* Subtle Watercolor/Brush accent in top right */}
+      <div 
+        aria-hidden="true" 
+        className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#EBF2F8]/60 via-[#F3F8FC]/30 to-transparent pointer-events-none rounded-full blur-2xl transform translate-x-20 -translate-y-20"
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* Left Column: Desk with Stacked Hardcovers & Framed Author Portrait */}
+          <div className="lg:col-span-6 flex justify-center lg:justify-start">
+            <div className="relative max-w-[500px] w-full rounded-xl overflow-hidden shadow-sm border border-stone-200/60 bg-stone-50 transition-transform duration-300 hover:shadow-md">
+              <img
+                src={config.author.aboutImage || (config.author as any).image || '/images/new_about_author_desk.png'}
+                alt="Andy Mahoney on desk with books Better Habits, More Purpose, A Brighter Future"
+                className="w-full h-auto object-cover block"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Author Biography & Signature */}
           <div className="lg:col-span-6 text-left">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-[#B87B33] mb-3">
-              {SITE_CONFIG.author.aboutEyebrow}
+            {/* Kicker */}
+            <p className="text-xs font-semibold tracking-wider uppercase text-[#1D6399] mb-3">
+              {config.author.aboutEyebrow || 'ABOUT THE AUTHOR'}
             </p>
 
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-[#0E1E31] leading-[1.2] mb-5">
-              {SITE_CONFIG.author.aboutHeading}
+            {/* Headline */}
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0E1E31] leading-tight mb-5">
+              {config.author.aboutHeading || 'Andy Mahoney'}
             </h2>
 
-            <p className="text-sm sm:text-base text-[#564F45] leading-relaxed mb-6 font-normal">
-              {SITE_CONFIG.author.aboutDescription}
+            {/* Paragraph Bio */}
+            <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-6 max-w-xl font-normal">
+              {config.author.aboutDescription ||
+                "Andy Mahoney is a passionate writer and advocate for personal growth, purpose, and a better tomorrow. Through his books, he helps readers build better habits, find meaning in every stage of life, and create a future they're excited about."}
             </p>
 
-            {/* Expandable biography context */}
-            {showFullBio && (
-              <div className="mb-6 p-5 bg-white/80 rounded-md border border-[#E8DFD1] text-xs sm:text-sm text-[#5B544A] space-y-3 animate-fadeIn">
+            {/* Extended Bio toggle */}
+            {showExtendedBio && (
+              <div className="mb-6 p-4 bg-[#F8FAFC] rounded-lg border border-stone-200 text-xs sm:text-sm text-stone-600 space-y-2 animate-fade-in">
                 <p>
-                  With over three decades of professional experience mentoring leaders, executives, and individuals transitioning through major life phases, Andy brings an empathetic, grounded voice to retirement planning.
+                  With decades of practical experience guiding individuals through pivotal lifestyle transformations, Andy believes that real fulfillment comes not from passive retreat, but from active curiosity, purposeful structure, and daily momentum.
                 </p>
                 <p>
-                  His writing focuses on breaking the conventional myth of passive retirement, empowering retirees to treat post-career life as an active canvas for creativity, volunteering, craftsmanship, writing, and community engagement.
+                  His books distill timeless principles into accessible exercises that empower readers to thrive at any stage of life.
                 </p>
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => setShowFullBio(!showFullBio)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs sm:text-sm font-medium rounded-sm transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer active:scale-[0.98]"
-              >
-                <span>{showFullBio ? 'Show Less' : 'Learn More About Andy'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={onOpenContact}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-transparent hover:bg-[#F0E8DC] text-[#0E1E31] text-xs sm:text-sm font-medium rounded-sm transition-colors cursor-pointer"
-              >
-                <span>Get in Touch</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Real Published Books Showcase */}
-          <div className="lg:col-span-6 flex justify-center lg:justify-end">
-            <div className="relative group max-w-[520px] w-full bg-white rounded-xl border border-[#E8E0D2] p-8 shadow-sm">
-              <div className="text-center mb-6">
-                <p className="text-xs font-semibold tracking-wider uppercase text-[#B87B33] mb-1">
-                  PUBLISHED WORKS BY THE AUTHOR
-                </p>
-                <h3 className="font-serif text-xl font-bold text-[#0E1E31]">
-                  Featured Bestsellers
-                </h3>
+            {/* Signature & Learn More Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-2">
+              {/* Handwritten Signature */}
+              <div className="h-10 flex items-center">
+                <img
+                  src="/images/author_signature_clean.png"
+                  alt="Andy Mahoney Signature"
+                  className="h-9 w-auto object-contain"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-6 items-center justify-center">
-                {books.map((book: BookInfo, idx: number) => (
-                  <div key={book.id} className="flex flex-col items-center group/book">
-                    <div className="w-36 h-48 sm:w-40 sm:h-52 overflow-hidden rounded-md shadow-md border border-stone-200 bg-stone-50 transition-transform duration-300 group-hover/book:scale-105 flex items-center justify-center">
-                      <img
-                        src={book.coverImage || (idx === 0 ? '/images/book1_hd_3d.png' : '/images/book2_hd_3d.png')}
-                        alt={book.title}
-                        className="w-full h-full object-contain p-2"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <span className="mt-3 text-xs font-serif font-bold text-[#0E1E31] text-center line-clamp-1">
-                      {book.title}
-                    </span>
-                  </div>
-                ))}
+              {/* Action Button */}
+              <div>
+                <button
+                  onClick={() => setShowExtendedBio(!showExtendedBio)}
+                  className="inline-flex items-center space-x-1.5 border border-[#125688] text-[#125688] hover:bg-[#125688]/5 px-5 py-2.5 rounded-md font-medium text-xs sm:text-sm transition-colors cursor-pointer group"
+                >
+                  <span>{showExtendedBio ? 'Show Less' : 'Learn More'}</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </button>
               </div>
             </div>
+
           </div>
+
         </div>
       </div>
     </section>

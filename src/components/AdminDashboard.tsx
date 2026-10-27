@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, X, Save, RotateCcw, BookOpen, User, MessageSquare, Layout, Sparkles, Check } from 'lucide-react';
+import { Settings, X, Save, RotateCcw, BookOpen, User, MessageSquare, Layout, Sparkles, Check, Upload } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
-import { clearSiteConfig } from '../lib/storage';
+import { clearSiteConfig, compressImageFile } from '../lib/storage';
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -36,6 +36,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (window.confirm('Are you sure you want to reset all changes to default?')) {
       await clearSiteConfig();
       window.location.reload();
+    }
+  };
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'aboutAuthor' | 'hero' | number
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressedDataUrl = await compressImageFile(file, {
+        maxWidth: 1600,
+        maxHeight: 1200,
+        quality: 0.85,
+      });
+      if (type === 'aboutAuthor') {
+        setFormData((prev: any) => ({
+          ...prev,
+          author: {
+            ...prev.author,
+            aboutImage: compressedDataUrl,
+            image: compressedDataUrl,
+          },
+        }));
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
     }
   };
 
@@ -314,6 +341,48 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'about' && (
             <div className="space-y-4">
               <h3 className="text-base font-bold text-[#0E1E31] border-b pb-2">About the Author</h3>
+
+              {/* Author Image Uploader */}
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                <label className="block text-xs font-semibold uppercase text-stone-700 mb-2">Author Section Photo & Desk Image</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-28 h-20 rounded-lg overflow-hidden border border-stone-300 bg-white shrink-0">
+                    <img
+                      src={formData.author.aboutImage || (formData.author as any).image || '/images/new_about_author_desk.png'}
+                      alt="Author Desk Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow space-y-2">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs font-bold rounded-lg cursor-pointer transition shadow-xs">
+                      <Upload className="w-3.5 h-3.5" /> Upload from Device
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, 'aboutAuthor')}
+                      />
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.author.aboutImage || (formData.author as any).image || ''}
+                      placeholder="/images/new_about_author_desk.png or custom URL"
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          author: {
+                            ...formData.author,
+                            aboutImage: e.target.value,
+                            image: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:ring-2 focus:ring-[#B87B33] outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase text-stone-600 mb-1">About Eyebrow</label>

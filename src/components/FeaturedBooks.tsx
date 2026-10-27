@@ -1,6 +1,6 @@
 import React from 'react';
+import { ArrowRight, Star } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
-import { ExternalLink, Sparkles } from 'lucide-react';
 
 interface FeaturedBooksProps {
   books?: BookInfo[];
@@ -13,78 +13,130 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
   config = SITE_CONFIG,
   onSelectBook,
 }) => {
-  const book1 = books[0] || config.books[0] || SITE_CONFIG.books[0];
-  const book2 = books[1] || config.books[1] || SITE_CONFIG.books[1];
+  const currentBooks = books && books.length > 0 ? books : config.books || SITE_CONFIG.books;
+  const book1 = currentBooks[0] || SITE_CONFIG.books[0];
+  const book2 = currentBooks[1] || SITE_CONFIG.books[1];
 
-  const bookCovers = [
-    { book: book1, image: book1.coverImage || '/images/book1_hd_3d.png' },
-    { book: book2, image: book2.coverImage || '/images/book2_hd_3d.png' },
+  const bookList = [
+    {
+      book: book1,
+      defaultCover: '/images/clean_featured_book1.png',
+      displayTitle: book1.title || "Retirement Don't Retire from Life",
+      subtitle: book1.subtitle || 'A Practical Guide to Purpose, Structure, and Life After Work',
+      price: book1.price || '$6.95',
+      originalPrice: book1.originalPrice || '$12.95',
+      ratingCount: book1.reviewCount || 1,
+    },
+    {
+      book: book2,
+      defaultCover: '/images/clean_featured_book2.png',
+      displayTitle: book2.title || 'The Retirement Companion: Be Better. Write Now!',
+      subtitle: book2.subtitle || 'A Practice Guide',
+      price: book2.price || '$6.95',
+      originalPrice: book2.originalPrice || '$12.95',
+      ratingCount: book2.reviewCount || 1,
+    },
   ];
 
   return (
-    <section id="books" className="bg-[#FAF7F2] py-16 md:py-24 border-b border-[#E8E1D4]">
+    <section id="books" className="bg-[#F8FAFC]/60 py-16 sm:py-20 lg:py-24 border-b border-stone-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-[#B87B33] mb-3">
-            {config.collection.eyebrow}
-          </p>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-[#0E1E31] leading-[1.2]">
-            {config.collection.heading}
+        <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
+          <div className="flex items-center justify-center space-x-3 text-xs font-semibold uppercase tracking-widest text-[#1D6399] mb-3">
+            <span className="w-8 h-[1px] bg-[#1D6399]/40"></span>
+            <span>FEATURED BOOKS</span>
+            <span className="w-8 h-[1px] bg-[#1D6399]/40"></span>
+          </div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0E1E31] tracking-tight leading-snug">
+            {config.collection.heading || 'Books for a More Fulfilling Tomorrow'}
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[#615A50] leading-relaxed max-w-2xl mx-auto">
-            {config.collection.description}
-          </p>
-          <p className="mt-2 text-xs text-[#B87B33] font-medium tracking-wide">
-            Click on any book card to view full details and takeaways
-          </p>
         </div>
 
-        {/* Separate Cards Grid showing Exact 3D Book Covers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-4xl mx-auto">
-          {bookCovers.map(({ book, image }) => (
-            <div
-              key={book.id}
-              onClick={() => onSelectBook(book)}
-              className="bg-white rounded-xl border border-[#E8E0D2] p-8 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col items-center cursor-pointer group relative"
-            >
-              {/* Badge */}
-              <div className="absolute top-4 right-4 bg-[#FAF7F2] border border-[#E5DDD0] px-3 py-1 rounded-full text-[11px] font-medium text-[#736B61] flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-[#B87B33]" />
-                <span>Click to View Details</span>
-              </div>
+        {/* Side-by-Side Dual Books Container with Vertical Divider */}
+        <div className="grid grid-cols-2 divide-x divide-stone-200 max-w-6xl mx-auto items-stretch">
+          {bookList.map(({ book, defaultCover, displayTitle, subtitle, price, originalPrice, ratingCount }, idx) => {
+            const coverSrc = book.coverImage || defaultCover;
 
-              {/* 3D Book Cover Image */}
-              <div className="w-48 sm:w-56 md:w-64 my-6 transition-transform duration-300 group-hover:scale-105">
-                <img
-                  src={image}
-                  alt={book.title}
-                  className="w-full h-auto object-contain drop-shadow-xl rounded-sm"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
+            return (
+              <div
+                key={book.id || idx}
+                className={`py-8 md:py-4 flex flex-col sm:flex-row items-center sm:items-start gap-6 ${
+                  idx === 0 ? 'md:pr-10 lg:pr-12' : 'md:pl-10 lg:pl-12'
+                }`}
+              >
+                {/* Book Cover with 3D drop shadow */}
+                <div
+                  onClick={() => onSelectBook(book)}
+                  className="w-36 sm:w-44 shrink-0 cursor-pointer transition-transform duration-300 hover:scale-105"
+                >
+                  <img
+                    src={coverSrc}
+                    alt={displayTitle}
+                    className="w-full h-auto object-contain drop-shadow-md rounded-sm"
+                    loading="lazy"
+                  />
+                </div>
 
-              {/* Title & Subtitle */}
-              <div className="text-center mt-2">
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#0E1E31] group-hover:text-[#B87B33] transition-colors leading-snug">
-                  {book.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-[#736B61] mt-1 line-clamp-1">
-                  {book.subtitle}
-                </p>
-              </div>
+                {/* Book Meta & Details */}
+                <div className="flex-1 flex flex-col justify-between text-left">
+                  <div>
+                    {/* Title */}
+                    <h3
+                      onClick={() => onSelectBook(book)}
+                      className="font-serif text-xl sm:text-[22px] font-bold text-[#0E1E31] leading-snug hover:text-[#125688] transition-colors cursor-pointer"
+                    >
+                      {displayTitle}
+                    </h3>
 
-              {/* CTA Button */}
-              <div className="mt-6">
-                <span className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#B87B33] group-hover:bg-[#A56D2B] text-white text-xs sm:text-sm font-medium rounded-sm transition-colors shadow-2xs">
-                  <span>View Full Details</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </span>
+                    {/* Subtitle */}
+                    <p className="text-xs sm:text-sm text-stone-600 mt-2 mb-3 leading-relaxed">
+                      {subtitle}
+                    </p>
+
+                    {/* Star Rating */}
+                    <div className="flex items-center space-x-1 mb-3">
+                      <div className="flex text-[#F59E0B]">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B]" />
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium text-[#125688] hover:underline cursor-pointer ml-1">
+                        ({ratingCount})
+                      </span>
+                    </div>
+
+                    {/* Price with strikethrough discount */}
+                    <div className="flex items-baseline space-x-2 mb-4">
+                      <span className="font-bold text-lg sm:text-xl text-[#0E1E31]">
+                        {price}
+                      </span>
+                      {originalPrice && (
+                        <span className="text-xs sm:text-sm text-stone-400 line-through">
+                          {originalPrice}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* View Details CTA Button */}
+                  <div>
+                    <button
+                      onClick={() => onSelectBook(book)}
+                      className="inline-flex items-center space-x-1.5 bg-[#125688] hover:bg-[#0E4770] text-white px-5 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-all shadow-xs hover:shadow-md cursor-pointer group"
+                    >
+                      <span>View Details</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
       </div>
     </section>
   );

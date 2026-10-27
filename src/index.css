@@ -17,6 +17,11 @@
   --color-cream: #faf7f2;
   --color-cream-subtle: #f5f0e6;
   --color-cream-border: #ede6da;
+
+  --color-brand-blue: #125688;
+  --color-brand-blue-hover: #0d4872;
+  --color-brand-blue-light: #ebf3fa;
+  --color-brand-blue-kicker: #1d6399;
 }
 
 body {

@@ -97,8 +97,8 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
       setIsSaving(false);
       setSavedToast(true);
       setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+        setSavedToast(false);
+      }, 2500);
     }
   };
 
@@ -111,7 +111,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: 'hero' | 'book1' | 'book2' | 'lifestyle' | number
+    type: 'hero' | 'book1' | 'book2' | 'lifestyle' | 'aboutAuthor' | 'author' | number
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -121,7 +121,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
       // Optimize image dimensions for crisp display without wasting megabytes
       const isBook = type === 'book1' || type === 'book2' || typeof type === 'number';
       const maxWidth = isBook ? 1200 : 1920;
-      const maxHeight = isBook ? 1800 : 1080;
+      const maxHeight = isBook ? 1800 : 1200;
 
       const compressedDataUrl = await compressImageFile(file, {
         maxWidth,
@@ -133,6 +133,15 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
         setFormData((prev: typeof SITE_CONFIG) => ({
           ...prev,
           author: { ...prev.author, heroImage: compressedDataUrl },
+        }));
+      } else if (type === 'aboutAuthor' || type === 'author') {
+        setFormData((prev: any) => ({
+          ...prev,
+          author: {
+            ...prev.author,
+            aboutImage: compressedDataUrl,
+            image: compressedDataUrl,
+          },
         }));
       } else if (type === 'lifestyle') {
         setFormData((prev: typeof SITE_CONFIG) => ({
@@ -514,17 +523,17 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {/* Hero Banner Image */}
                 <div className="bg-stone-800/60 p-5 rounded-2xl border border-stone-700/60 space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 className="font-bold text-white text-sm mb-1">Hero Background Banner</h4>
-                    <p className="text-xs text-stone-400 mb-4">Widescreen banner image shown at top of website.</p>
+                    <h4 className="font-bold text-white text-sm mb-1">Hero Books Banner</h4>
+                    <p className="text-xs text-stone-400 mb-4">Books composition shown at top hero section.</p>
                     <div className="w-full h-32 rounded-xl overflow-hidden bg-stone-900 border border-stone-700 mb-4 flex items-center justify-center">
                       <img
-                        src={formData.author.heroImage || '/images/hero_hd_full.png'}
+                        src={formData.author.heroImage || '/images/new_hero_books.png'}
                         alt="Hero Banner Preview"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1"
                       />
                     </div>
                     <label className="block w-full py-2 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs font-bold rounded-xl text-center cursor-pointer transition shadow-sm mb-2.5">
@@ -539,7 +548,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
                     <label className="block text-[11px] font-semibold uppercase text-stone-400 mb-1">Or Image URL</label>
                     <input
                       type="text"
-                      value={formData.author.heroImage || '/images/hero_hd_full.png'}
+                      value={formData.author.heroImage || '/images/new_hero_books.png'}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -548,6 +557,65 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
                       }
                       className="w-full px-3 py-1.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#B87B33] outline-none"
                     />
+                  </div>
+                </div>
+
+                {/* About Author Section Desk / Portrait Image */}
+                <div className="bg-stone-800/60 p-5 rounded-2xl border border-stone-700/60 space-y-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-bold text-white text-sm">About Author Image</h4>
+                      <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-medium">About Section</span>
+                    </div>
+                    <p className="text-xs text-stone-400 mb-4">Desk with books & framed author photo in 'About Andy'.</p>
+                    <div className="w-full h-32 rounded-xl overflow-hidden bg-stone-900 border border-stone-700 mb-4 flex items-center justify-center">
+                      <img
+                        src={formData.author.aboutImage || (formData.author as any).image || '/images/new_about_author_desk.png'}
+                        alt="About Author Desk Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <label className="block w-full py-2 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs font-bold rounded-xl text-center cursor-pointer transition shadow-sm mb-2.5">
+                      <Upload className="w-3.5 h-3.5 inline mr-1" /> Upload from Device
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, 'aboutAuthor')}
+                      />
+                    </label>
+                    <label className="block text-[11px] font-semibold uppercase text-stone-400 mb-1">Or Image URL</label>
+                    <input
+                      type="text"
+                      value={formData.author.aboutImage || (formData.author as any).image || '/images/new_about_author_desk.png'}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          author: {
+                            ...formData.author,
+                            aboutImage: e.target.value,
+                            image: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-1.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#B87B33] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          author: {
+                            ...formData.author,
+                            aboutImage: '/images/new_about_author_desk.png',
+                            image: '/images/new_about_author_desk.png',
+                          },
+                        })
+                      }
+                      className="mt-2 text-[11px] text-stone-400 hover:text-amber-400 underline transition cursor-pointer"
+                    >
+                      Reset to Default Image
+                    </button>
                   </div>
                 </div>
 
@@ -901,9 +969,89 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           {/* ABOUT TAB */}
           {activeMenu === 'about' && (
             <div className="space-y-6 bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-xl animate-in fade-in duration-200">
-              <h3 className="text-xl font-serif font-bold text-white border-b border-stone-800 pb-4">
-                About Author Settings
-              </h3>
+              <div className="flex items-center justify-between border-b border-stone-800 pb-4">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-white">About Author Settings</h3>
+                  <p className="text-xs text-stone-400 mt-1">Manage author photo, bio, headings and quotes displayed in the 'About Andy Mahoney' section</p>
+                </div>
+              </div>
+
+              {/* Author Photo / Composition Image Uploader */}
+              <div className="bg-stone-800/70 p-5 rounded-2xl border border-stone-700/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-white text-sm">Author Section Photo & Desk Composition</h4>
+                    <p className="text-xs text-stone-400">
+                      The image displayed on the left of "About Andy Mahoney" (hardcovers stack and framed portrait).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        author: {
+                          ...formData.author,
+                          aboutImage: '/images/new_about_author_desk.png',
+                          image: '/images/new_about_author_desk.png',
+                        },
+                      })
+                    }
+                    className="text-xs text-amber-400 hover:underline cursor-pointer"
+                  >
+                    Reset to Default Image
+                  </button>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-5 pt-2">
+                  <div className="w-full sm:w-56 h-36 rounded-xl overflow-hidden bg-stone-950 border border-stone-700 shrink-0 flex items-center justify-center shadow-inner">
+                    <img
+                      src={formData.author.aboutImage || (formData.author as any).image || '/images/new_about_author_desk.png'}
+                      alt="About Author Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow w-full space-y-3">
+                    <div>
+                      <label className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
+                        <Upload className="w-4 h-4" /> Upload Author Photo from Device
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e, 'aboutAuthor')}
+                        />
+                      </label>
+                      <span className="block text-[11px] text-stone-400 mt-1.5">
+                        JPG, PNG, or WebP. Automatically optimized for crisp display.
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase text-stone-400 mb-1">
+                        Or Custom Image URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.author.aboutImage || (formData.author as any).image || ''}
+                        placeholder="/images/new_about_author_desk.png or https://..."
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            author: {
+                              ...formData.author,
+                              aboutImage: e.target.value,
+                              image: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 bg-stone-950 border border-stone-700 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#B87B33] outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
