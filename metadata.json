@@ -1,0 +1,6 @@
+{
+  "name": "Andy Mahoney — Author & Practical Life Guides",
+  "description": "Practical guides for a more meaningful next chapter. Explore bestselling books by author Andy Mahoney on purpose, structure, and life after work.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
