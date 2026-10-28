@@ -34,6 +34,9 @@ export const AboutAuthor: React.FC<AboutAuthorProps> = ({
                 alt="Andy Mahoney on desk with books Better Habits, More Purpose, A Brighter Future"
                 className="w-full h-auto object-cover block"
                 loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/images/about_desk_clean.png';
+                }}
               />
             </div>
           </div>

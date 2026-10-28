@@ -163,7 +163,7 @@ export const DEFAULT_SITE_CONFIG = {
     privacyNote: 'No spam. Just good reads.',
   },
 
-  designVersion: 2,
+  designVersion: 3,
 };
 
 // Load saved config from localStorage if present
@@ -173,8 +173,8 @@ const getInitialConfig = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // If it's from the old design or contains old newsletter copy, upgrade to new approved design
-        if (!parsed.designVersion || parsed.designVersion < 2 || parsed.newsletter?.heading?.includes('Get Updates')) {
+        // If it's from an older design version, upgrade to new approved design
+        if (!parsed.designVersion || parsed.designVersion < 3 || parsed.newsletter?.heading?.includes('Get Updates')) {
           const upgraded = {
             ...DEFAULT_SITE_CONFIG,
             ...parsed,
@@ -182,6 +182,8 @@ const getInitialConfig = () => {
             author: {
               ...DEFAULT_SITE_CONFIG.author,
               ...(parsed.author || {}),
+              aboutImage: '/images/new_about_author_desk.png',
+              image: '/images/new_about_author_desk.png',
               heroHeadline: DEFAULT_SITE_CONFIG.author.heroHeadline,
               heroHeadlineHighlight: DEFAULT_SITE_CONFIG.author.heroHeadlineHighlight,
               heroDescription: DEFAULT_SITE_CONFIG.author.heroDescription,
@@ -189,7 +191,7 @@ const getInitialConfig = () => {
             },
             collection: { ...DEFAULT_SITE_CONFIG.collection },
             books: DEFAULT_SITE_CONFIG.books,
-            designVersion: 2,
+            designVersion: 3,
           };
           localStorage.setItem('andy_site_config', JSON.stringify(upgraded));
           return upgraded;
@@ -200,7 +202,7 @@ const getInitialConfig = () => {
       }
     }
   }
-  return { ...DEFAULT_SITE_CONFIG, designVersion: 2 };
+  return { ...DEFAULT_SITE_CONFIG, designVersion: 3 };
 };
 
 export const SITE_CONFIG = getInitialConfig();
