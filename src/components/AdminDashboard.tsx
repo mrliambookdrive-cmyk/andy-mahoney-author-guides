@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, X, Save, RotateCcw, BookOpen, User, MessageSquare, Layout, Sparkles, Check, Upload } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
-import { clearSiteConfig, compressImageFile } from '../lib/storage';
+import { clearSiteConfig, compressImageFile, saveSiteConfig } from '../lib/storage';
+import { isSupabaseConfigured, saveConfigToSupabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -26,8 +27,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await saveSiteConfig(formData);
     onUpdateConfig(formData);
+    if (isSupabaseConfigured()) {
+      saveConfigToSupabase(formData).catch((err) => console.warn('Supabase sync error:', err));
+    }
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2500);
   };

@@ -29,7 +29,14 @@ import {
   Loader2
 } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
-import { supabase } from '../lib/supabase';
+import {
+  supabase,
+  isSupabaseConfigured,
+  getSupabaseCredentials,
+  saveSupabaseCredentials,
+  testSupabaseConnection,
+  saveConfigToSupabase,
+} from '../lib/supabase';
 import { saveSiteConfig, clearSiteConfig, compressImageFile } from '../lib/storage';
 
 interface FullAdminDashboardProps {
@@ -49,7 +56,14 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
   const [savedToast, setSavedToast] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingStatus, setUploadingStatus] = useState<string | null>(null);
-  const [supabaseSyncStatus, setSupabaseSyncStatus] = useState<string>('Ready');
+  const [supabaseSyncStatus, setSupabaseSyncStatus] = useState<string>(() =>
+    isSupabaseConfigured() ? 'Supabase Connected' : 'Local Cache (Enter Supabase credentials in Settings)'
+  );
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(() => getSupabaseCredentials().url);
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(() => getSupabaseCredentials().key);
+  const [isTestingConn, setIsTestingConn] = useState(false);
+  const [testConnResult, setTestConnResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [sqlCopied, setSqlCopied] = useState(false);
 
   useEffect(() => {
     setFormData(config);
@@ -60,35 +74,21 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
     setSupabaseSyncStatus('Saving & Syncing...');
 
     try {
-      // 1. Reliably save to IndexedDB & safely to localStorage (zero QuotaExceededError)
+      // 1. Reliably save to IndexedDB & safely to localStorage
       await saveSiteConfig(formData);
       onUpdateConfig(formData);
 
-      // 2. Sync to Supabase if connected
-      if (supabase) {
-        for (const book of formData.books) {
-          await supabase.from('books').upsert({
-            id: book.id,
-            title: book.title,
-            subtitle: book.subtitle,
-            description: book.description,
-            cover_image: book.coverImage,
-            amazon_url: book.amazonUrl,
-            rating: book.rating || 5,
-            review_count: book.reviewCount || 1,
-            publication_year: book.publicationYear,
-            highlights: book.highlights,
-          });
+      // 2. Sync to Supabase if credentials exist
+      if (isSupabaseConfigured()) {
+        const syncRes = await saveConfigToSupabase(formData);
+        if (syncRes.success) {
+          setSupabaseSyncStatus('Synced with Supabase & Stored!');
+        } else {
+          setSupabaseSyncStatus(`Saved locally. Supabase error: ${syncRes.error}`);
+          console.error('Supabase sync error:', syncRes.error);
         }
-
-        await supabase.from('site_settings').upsert({
-          key: 'main_config',
-          value: formData,
-        });
-
-        setSupabaseSyncStatus('Synced with Supabase & Stored!');
       } else {
-        setSupabaseSyncStatus('Saved securely in storage');
+        setSupabaseSyncStatus('Saved locally (Enter Supabase credentials in Settings to sync DB)');
       }
     } catch (err: any) {
       console.warn('Storage or Supabase warning:', err?.message || err);
@@ -98,7 +98,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
       setSavedToast(true);
       setTimeout(() => {
         setSavedToast(false);
-      }, 2500);
+      }, 3500);
     }
   };
 
@@ -1310,20 +1310,175 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
 
           {/* SETTINGS TAB */}
           {activeMenu === 'settings' && (
-            <div className="space-y-6 bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-xl animate-in fade-in duration-200">
-              <h3 className="text-xl font-serif font-bold text-white border-b border-stone-800 pb-4">
-                Supabase & Database Configuration
-              </h3>
-              <div className="space-y-4 text-sm">
-                <p className="text-stone-300">
-                  Your website is fully connected to Supabase. When you click <strong className="text-amber-400">Save & Sync to Supabase</strong>, all uploaded device images and site settings are saved to both Supabase and local cache.
-                </p>
-                <div className="bg-stone-800/80 p-4 rounded-xl border border-stone-700 space-y-2 font-mono text-xs text-stone-300">
-                  <p className="text-emerald-400 font-bold"># Supabase Client Status</p>
-                  <p>Client Initialized: <span className="text-white">Active</span></p>
-                  <p>Tables Connected: <span className="text-white">books, site_settings, contacts</span></p>
+            <div className="space-y-6 animate-in fade-in duration-200">
+              
+              {/* Card 1: Supabase Credentials & Connection */}
+              <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-800 gap-3">
+                  <div>
+                    <h3 className="text-xl font-serif font-bold text-white">
+                      Supabase Database Configuration
+                    </h3>
+                    <p className="text-xs text-stone-400 mt-1">
+                      Connect your Supabase project to sync all books, author details, images, and settings to the cloud.
+                    </p>
+                  </div>
+                  <div>
+                    {isSupabaseConfigured() ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Supabase Configured
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-400 border border-amber-700/60 shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                        Local Cache Only
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-stone-300 mb-2">
+                      Supabase Project URL
+                    </label>
+                    <input
+                      type="url"
+                      value={supabaseUrlInput}
+                      onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                      placeholder="https://your-project-id.supabase.co"
+                      className="w-full px-4 py-2.5 bg-stone-800 border border-stone-700 rounded-xl text-sm text-white placeholder-stone-500 focus:ring-2 focus:ring-[#B87B33] outline-none font-mono"
+                    />
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      Found in Supabase Dashboard $\rightarrow$ Project Settings $\rightarrow$ API $\rightarrow$ Project URL
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-stone-300 mb-2">
+                      Supabase Anon / Public API Key
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={supabaseKeyInput}
+                      onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      className="w-full px-4 py-2.5 bg-stone-800 border border-stone-700 rounded-xl text-xs text-white placeholder-stone-500 focus:ring-2 focus:ring-[#B87B33] outline-none font-mono"
+                    />
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      Found in Supabase Dashboard $\rightarrow$ Project Settings $\rightarrow$ API $\rightarrow$ Project API keys $\rightarrow$ anon (public)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Connection Test Banner Result */}
+                {testConnResult && (
+                  <div
+                    className={`p-4 rounded-xl border text-xs sm:text-sm animate-fade-in ${
+                      testConnResult.success
+                        ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-300'
+                        : 'bg-red-950/40 border-red-600/60 text-red-300'
+                    }`}
+                  >
+                    <p className="font-semibold">{testConnResult.success ? '✅ Success' : '⚠️ Connection Warning'}</p>
+                    <p className="mt-1 font-mono text-xs">{testConnResult.message}</p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveSupabaseCredentials(supabaseUrlInput, supabaseKeyInput);
+                      setSupabaseSyncStatus(isSupabaseConfigured() ? 'Supabase Connected' : 'Local Storage Mode');
+                      setSavedToast(true);
+                      setTimeout(() => setSavedToast(false), 2500);
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#B87B33] hover:bg-[#A56D2B] text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-md cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" /> Save Credentials
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isTestingConn}
+                    onClick={async () => {
+                      saveSupabaseCredentials(supabaseUrlInput, supabaseKeyInput);
+                      setIsTestingConn(true);
+                      setTestConnResult(null);
+                      const result = await testSupabaseConnection();
+                      setIsTestingConn(false);
+                      setTestConnResult(result);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs sm:text-sm font-semibold rounded-xl border border-stone-700 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {isTestingConn ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                        Testing Connection...
+                      </>
+                    ) : (
+                      <>
+                        <Database className="w-4 h-4 text-emerald-400" />
+                        Test Connection
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={async () => {
+                      saveSupabaseCredentials(supabaseUrlInput, supabaseKeyInput);
+                      await handleSave();
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-xl border border-emerald-600 transition cursor-pointer disabled:opacity-50 ml-auto"
+                  >
+                    <TrendingUp className="w-4 h-4" /> Push All Data to Supabase
+                  </button>
                 </div>
               </div>
+
+              {/* Card 2: Database Schema & SQL Instructions */}
+              <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-xl space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+                  <div>
+                    <h4 className="text-base font-serif font-bold text-white">Database SQL Schema</h4>
+                    <p className="text-xs text-stone-400">Run this once in Supabase SQL Editor to create tables: books, site_settings, contacts.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sql = `-- Supabase Database Schema for Andy Mahoney Author Website CMS\n\nCREATE TABLE IF NOT EXISTS public.books (\n  id TEXT PRIMARY KEY,\n  title TEXT NOT NULL,\n  subtitle TEXT,\n  description TEXT,\n  cover_image TEXT,\n  amazon_url TEXT,\n  rating NUMERIC DEFAULT 5,\n  review_count INTEGER DEFAULT 1,\n  publication_year TEXT,\n  highlights JSONB,\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS public.site_settings (\n  key TEXT PRIMARY KEY,\n  value JSONB NOT NULL,\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS public.contacts (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT NOT NULL,\n  message TEXT NOT NULL,\n  status TEXT DEFAULT 'new',\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL\n);\n\nALTER TABLE public.books ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY "Allow public read books" ON public.books FOR SELECT USING (true);\nCREATE POLICY "Allow public upsert books" ON public.books FOR ALL USING (true);\nCREATE POLICY "Allow public read settings" ON public.site_settings FOR SELECT USING (true);\nCREATE POLICY "Allow public upsert settings" ON public.site_settings FOR ALL USING (true);\nCREATE POLICY "Allow public insert contacts" ON public.contacts FOR INSERT WITH CHECK (true);\nCREATE POLICY "Allow public read contacts" ON public.contacts FOR SELECT USING (true);`;
+                      navigator.clipboard.writeText(sql);
+                      setSqlCopied(true);
+                      setTimeout(() => setSqlCopied(false), 3000);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition cursor-pointer"
+                  >
+                    {sqlCopied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" /> Copied to Clipboard!
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-3.5 h-3.5 text-amber-400" /> Copy SQL Schema
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 font-mono text-[11px] text-stone-300 space-y-1.5">
+                  <p className="text-amber-400 font-bold"># Quick 30-Second Setup Guide:</p>
+                  <p>1. Open your project on <span className="text-white">supabase.com/dashboard</span></p>
+                  <p>2. In the left sidebar, click <span className="text-white">SQL Editor</span> $\rightarrow$ <span className="text-white">New Query</span></p>
+                  <p>3. Click <span className="text-emerald-400 font-semibold">'Copy SQL Schema'</span> button above, paste it into the editor, and click <span className="text-white font-semibold">Run</span></p>
+                  <p>4. Go to <span className="text-white">Project Settings $\rightarrow$ API</span>, copy your <span className="text-amber-300">Project URL</span> and <span className="text-amber-300">anon key</span>, and paste them above.</p>
+                </div>
+              </div>
+
             </div>
           )}
         </main>

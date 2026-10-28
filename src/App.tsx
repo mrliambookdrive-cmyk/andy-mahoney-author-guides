@@ -15,6 +15,7 @@ import { FullAdminDashboard } from './components/FullAdminDashboard';
 import { BookInfo, DEFAULT_SITE_CONFIG, SITE_CONFIG } from './data/siteConfig';
 import { Settings } from 'lucide-react';
 import { loadSiteConfig, getSyncSiteConfig, saveSiteConfig } from './lib/storage';
+import { isSupabaseConfigured, loadConfigFromSupabase } from './lib/supabase';
 import { AdminAuthModal } from './components/AdminAuthModal';
 
 export default function App() {
@@ -27,21 +28,23 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(null);
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
-  // Load config: prefer new design version 2 or fallback to updated DEFAULT_SITE_CONFIG
+  // Load config: prefer new design version 3 or fallback to updated DEFAULT_SITE_CONFIG
   const [config, setConfig] = useState(() => {
     const saved = getSyncSiteConfig();
-    if (saved && saved.designVersion === 2 && !saved.newsletter?.heading?.includes('Get Updates')) {
+    if (saved && saved.designVersion === 3 && !saved.newsletter?.heading?.includes('Get Updates')) {
       return saved;
     }
-    return { ...DEFAULT_SITE_CONFIG, designVersion: 2 };
+    return { ...DEFAULT_SITE_CONFIG, designVersion: 3 };
   });
 
   const [books, setBooks] = useState<BookInfo[]>(config.books || DEFAULT_SITE_CONFIG.books);
 
-  // Load latest config asynchronously from high-capacity IndexedDB on startup
+  // Load latest config: local storage first for speed, then Supabase if connected
   useEffect(() => {
-    loadSiteConfig().then((loaded) => {
-      if (loaded && loaded.designVersion === 2 && !loaded.newsletter?.heading?.includes('Get Updates')) {
+    const initConfig = async () => {
+      // 1. Load from IndexedDB/localStorage first for instant render
+      const loaded = await loadSiteConfig();
+      if (loaded && loaded.designVersion === 3 && !loaded.newsletter?.heading?.includes('Get Updates')) {
         setConfig(loaded);
         if (loaded.books) {
           setBooks(loaded.books);
@@ -51,15 +54,37 @@ export default function App() {
           ...DEFAULT_SITE_CONFIG,
           ...(loaded || {}),
           newsletter: { ...DEFAULT_SITE_CONFIG.newsletter },
-          author: { ...DEFAULT_SITE_CONFIG.author, heroImage: DEFAULT_SITE_CONFIG.author.heroImage },
+          author: {
+            ...DEFAULT_SITE_CONFIG.author,
+            aboutImage: DEFAULT_SITE_CONFIG.author.aboutImage,
+            heroImage: DEFAULT_SITE_CONFIG.author.heroImage,
+          },
           books: DEFAULT_SITE_CONFIG.books,
-          designVersion: 2,
+          designVersion: 3,
         };
         setConfig(freshConfig);
         setBooks(freshConfig.books);
         saveSiteConfig(freshConfig).catch(() => {});
       }
-    });
+
+      // 2. If Supabase is configured, fetch latest database state & sync
+      if (isSupabaseConfigured()) {
+        try {
+          const supabaseConfig = await loadConfigFromSupabase();
+          if (supabaseConfig) {
+            setConfig(supabaseConfig);
+            if (supabaseConfig.books) {
+              setBooks(supabaseConfig.books);
+            }
+            await saveSiteConfig(supabaseConfig);
+          }
+        } catch (err) {
+          console.warn('Could not sync with Supabase on startup:', err);
+        }
+      }
+    };
+
+    initConfig();
   }, []);
 
   // Update books when config changes
