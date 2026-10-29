@@ -124,12 +124,15 @@ export const Newsletter: React.FC<NewsletterProps> = ({ config }) => {
             )}
           </div>
 
-          {/* Right Column: "Better Every Day" Calligraphy Artwork (Transparent PNG) */}
-          <div className="lg:col-span-2 hidden lg:flex justify-end items-center">
-            <div className="w-32 h-auto select-none pointer-events-none transform -rotate-1">
+          {/* Right Column: "Better Every Day" Calligraphy Artwork (Full HD Transparent PNG) */}
+          <div className="lg:col-span-2 flex justify-center lg:justify-end items-center pt-2 lg:pt-0">
+            <div className="w-36 sm:w-40 lg:w-44 h-auto select-none pointer-events-none transform -rotate-1 transition-transform duration-300">
               <img
                 src="/images/better_every_day_calligraphy.png"
                 alt="Better Every Day"
+                width={1400}
+                height={1104}
+                loading="eager"
                 className="w-full h-auto object-contain filter drop-shadow-xs"
               />
             </div>
