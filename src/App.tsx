@@ -28,13 +28,13 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(null);
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
-  // Load config: prefer new design version 3 or fallback to updated DEFAULT_SITE_CONFIG
+  // Load config: prefer new design version 4 or fallback to updated DEFAULT_SITE_CONFIG
   const [config, setConfig] = useState(() => {
     const saved = getSyncSiteConfig();
-    if (saved && saved.designVersion === 3 && !saved.newsletter?.heading?.includes('Get Updates')) {
+    if (saved && saved.designVersion === 4 && !saved.newsletter?.heading?.includes('Get Updates')) {
       return saved;
     }
-    return { ...DEFAULT_SITE_CONFIG, designVersion: 3 };
+    return { ...DEFAULT_SITE_CONFIG, designVersion: 4 };
   });
 
   const [books, setBooks] = useState<BookInfo[]>(config.books || DEFAULT_SITE_CONFIG.books);
@@ -44,7 +44,7 @@ export default function App() {
     const initConfig = async () => {
       // 1. Load from IndexedDB/localStorage first for instant render
       const loaded = await loadSiteConfig();
-      if (loaded && loaded.designVersion === 3 && !loaded.newsletter?.heading?.includes('Get Updates')) {
+      if (loaded && loaded.designVersion === 4 && !loaded.newsletter?.heading?.includes('Get Updates')) {
         setConfig(loaded);
         if (loaded.books) {
           setBooks(loaded.books);
@@ -60,7 +60,7 @@ export default function App() {
             heroImage: DEFAULT_SITE_CONFIG.author.heroImage,
           },
           books: DEFAULT_SITE_CONFIG.books,
-          designVersion: 3,
+          designVersion: 4,
         };
         setConfig(freshConfig);
         setBooks(freshConfig.books);

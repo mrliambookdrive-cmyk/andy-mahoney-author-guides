@@ -163,7 +163,7 @@ export const DEFAULT_SITE_CONFIG = {
     privacyNote: 'No spam. Just good reads.',
   },
 
-  designVersion: 3,
+  designVersion: 4,
 };
 
 // Load saved config from localStorage if present
@@ -174,7 +174,7 @@ const getInitialConfig = () => {
       try {
         const parsed = JSON.parse(saved);
         // If it's from an older design version, upgrade to new approved design
-        if (!parsed.designVersion || parsed.designVersion < 3 || parsed.newsletter?.heading?.includes('Get Updates')) {
+        if (!parsed.designVersion || parsed.designVersion < 4 || parsed.newsletter?.heading?.includes('Get Updates')) {
           const upgraded = {
             ...DEFAULT_SITE_CONFIG,
             ...parsed,
@@ -191,7 +191,7 @@ const getInitialConfig = () => {
             },
             collection: { ...DEFAULT_SITE_CONFIG.collection },
             books: DEFAULT_SITE_CONFIG.books,
-            designVersion: 3,
+            designVersion: 4,
           };
           localStorage.setItem('andy_site_config', JSON.stringify(upgraded));
           return upgraded;
@@ -202,7 +202,7 @@ const getInitialConfig = () => {
       }
     }
   }
-  return { ...DEFAULT_SITE_CONFIG, designVersion: 3 };
+  return { ...DEFAULT_SITE_CONFIG, designVersion: 4 };
 };
 
 export const SITE_CONFIG = getInitialConfig();

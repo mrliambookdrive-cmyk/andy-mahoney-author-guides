@@ -26,7 +26,8 @@ import {
   Database,
   Image as ImageIcon,
   Upload,
-  Loader2
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import { SITE_CONFIG, BookInfo } from '../data/siteConfig';
 import {
@@ -36,6 +37,7 @@ import {
   saveSupabaseCredentials,
   testSupabaseConnection,
   saveConfigToSupabase,
+  loadConfigFromSupabase,
 } from '../lib/supabase';
 import { saveSiteConfig, clearSiteConfig, compressImageFile } from '../lib/storage';
 
@@ -106,6 +108,30 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
     if (window.confirm('Reset all changes to factory defaults?')) {
       await clearSiteConfig();
       window.location.reload();
+    }
+  };
+
+  const handleClearCacheAndReload = async () => {
+    if (!window.confirm('Clear local browser cache and reload fresh data from Supabase?')) return;
+    setIsSaving(true);
+    setSupabaseSyncStatus('Clearing local cache & syncing...');
+    try {
+      await clearSiteConfig();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('andy_site_config');
+      }
+      const fresh = await loadConfigFromSupabase();
+      if (fresh) {
+        await saveSiteConfig(fresh);
+        setFormData(fresh);
+        onUpdateConfig(fresh);
+      }
+      window.location.reload();
+    } catch (err: any) {
+      console.warn('Error clearing cache:', err);
+      window.location.reload();
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -360,6 +386,15 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
                   <Save className="w-4 h-4" /> Save & Sync to Supabase
                 </>
               )}
+            </button>
+
+            <button
+              onClick={handleClearCacheAndReload}
+              disabled={isSaving}
+              title="Clear all browser cache and reload fresh data from Supabase"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs sm:text-sm font-semibold border border-stone-700 transition cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-amber-400" /> Clear Cache & Refresh
             </button>
 
             <button
