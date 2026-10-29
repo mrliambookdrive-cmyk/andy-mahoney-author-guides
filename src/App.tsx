@@ -16,7 +16,7 @@ import { FullAdminDashboard } from './components/FullAdminDashboard';
 import { BookInfo, DEFAULT_SITE_CONFIG, SITE_CONFIG } from './data/siteConfig';
 import { Settings } from 'lucide-react';
 import { loadSiteConfig, getSyncSiteConfig, saveSiteConfig } from './lib/storage';
-import { isSupabaseConfigured, loadConfigFromSupabase } from './lib/supabase';
+import { isSupabaseConfigured, loadConfigFromSupabase, saveConfigToSupabase } from './lib/supabase';
 import { AdminAuthModal } from './components/AdminAuthModal';
 
 export default function App() {
@@ -144,6 +144,11 @@ export default function App() {
     saveSiteConfig(versioned).catch((err) => {
       console.warn('Storage warning:', err);
     });
+    if (isSupabaseConfigured()) {
+      saveConfigToSupabase(versioned).catch((err) => {
+        console.warn('Supabase sync note in App:', err);
+      });
+    }
   };
 
   const handleUpdateAmazonUrl = (bookId: string, newUrl: string) => {
@@ -157,11 +162,13 @@ export default function App() {
   };
 
   const handleOpenBookAmazon = (book: BookInfo) => {
+    const defaultUrl1 =
+      'https://www.amazon.com/Retreadment-Dont-Retire-Life-Structure/dp/B0HBNGXFH6/ref=sr_1_1?crid=1YSO2XRQDNVF6&keywords=Retirement+Don%27t+Retire+from+Life&qid=1793222605&sr=1-1';
+    const defaultUrl2 =
+      'https://www.amazon.com/Retreadment-Companion-Better-Write-Practice-ebook/dp/B0HGN8N7C1?ref_=ast_author_dp_rw&th=1&psc=1';
     const url =
       book.amazonUrl ||
-      (book.id === 'retreadment-companion'
-        ? 'https://www.amazon.com/dp/B0D2EXAMPLE2'
-        : 'https://www.amazon.com/dp/B0D1EXAMPLE1');
+      (book.id === 'retreadment-companion' ? defaultUrl2 : defaultUrl1);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 

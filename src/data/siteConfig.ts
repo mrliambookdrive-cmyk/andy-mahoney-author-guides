@@ -33,12 +33,12 @@ export const DEFAULT_SITE_CONFIG = {
     aboutHeading: 'Andy Mahoney',
     aboutDescription:
       "Andy Mahoney is a passionate writer and advocate for personal growth, purpose, and a better tomorrow. Through his books, he helps readers build better habits, find meaning in every stage of life, and create a future they're excited about.",
-    aboutImage: '/images/new_about_author_desk.png',
-    image: '/images/new_about_author_desk.png',
+    aboutImage: '/images/saved_about_author.webp',
+    image: '/images/saved_about_author.webp',
     quote: 'The best chapter can still be ahead.',
     quoteAttribution: 'Andy Mahoney',
     email: 'contact@andymahoneybooks.com',
-    heroImage: '/images/new_hero_books.png',
+    heroImage: '/images/saved_hero_books.webp',
   },
 
   socials: {
@@ -90,8 +90,9 @@ export const DEFAULT_SITE_CONFIG = {
       subtitle: 'A Practical Guide to Purpose, Structure, and Life After Work',
       description:
         'A practical and inspiring guide to help you find purpose, build structure, and make the most of your retirement years. Filled with real-life tools and actionable steps.',
-      coverImage: '/images/clean_featured_book1.png',
-      amazonUrl: 'https://www.amazon.com/dp/B0D1EXAMPLE1',
+      coverImage: '/images/saved_book1_cover.webp',
+      amazonUrl:
+        'https://www.amazon.com/Retreadment-Dont-Retire-Life-Structure/dp/B0HBNGXFH6/ref=sr_1_1?crid=1YSO2XRQDNVF6&dib=eyJ2IjoiMSJ9.vbKLONup52OqStNfZY8XnwvmfXVcJeAFe0xzSEY5NMi6D0aVQh1BSaK7a-yGAT4eCZdAWmOn-z3AFlEFaB8reqJfEp8qivc_04GI93GjNnR9fFSJeK-8M-wdlFUCUWrh_pSOfdgGVaRzGG7Y4Fc8Tu3dsdQTjiYoxIAWw616Ob7iO_Li2rjXyLmjLWZa2STRDoEGjc-Ewzp_KPmRt_IsShatSOu2hNArDKISVIfJ0XY.sDBXbvhB_whhTvhjkMZThGWFRis_UYWUN26kRVYGNWY&dib_tag=se&keywords=Retirement+Don%27t+Retire+from+Life&qid=1793222605&s=books&sprefix=%2Cstripbooks-intl-ship%2C358&sr=1-1',
       rating: 5,
       reviewCount: 1,
       price: '$6.95',
@@ -111,8 +112,9 @@ export const DEFAULT_SITE_CONFIG = {
       subtitle: 'A Practice Guide',
       description:
         'A companion to Retreadment Don\'t Retire from Life, this guide helps you put ideas into action with practical exercises, journaling prompts, and real-world strategies.',
-      coverImage: '/images/clean_featured_book2.png',
-      amazonUrl: 'https://www.amazon.com/dp/B0D2EXAMPLE2',
+      coverImage: '/images/saved_book2_cover.webp',
+      amazonUrl:
+        'https://www.amazon.com/Retreadment-Companion-Better-Write-Practice-ebook/dp/B0HGN8N7C1?ref_=ast_author_dp_rw&th=1&psc=1&dib=eyJ2IjoiMSJ9.UglLKsDodOONh_JaDDuGaqft4fAYB5BTkOmmflIlvLE.gnQGrBbfoUrjEVnxtZp0JfhKUxyn6YgznToi0AZH8Uo&dib_tag=AUTHOR',
       rating: 5,
       reviewCount: 1,
       price: '$6.95',

@@ -225,21 +225,29 @@ export async function loadConfigFromSupabase(): Promise<any | null> {
       .order('id');
 
     if (!booksErr && booksData && booksData.length > 0) {
-      config.books = booksData.map((b: any) => ({
-        id: b.id,
-        title: b.title,
-        displayTitle: b.display_title || b.title,
-        subtitle: b.subtitle,
-        description: b.description,
-        coverImage: b.cover_image,
-        amazonUrl: b.amazon_url,
-        rating: b.rating,
-        reviewCount: b.review_count,
-        price: b.price || '$6.95',
-        originalPrice: b.original_price || '$12.95',
-        publicationYear: b.publication_year,
-        highlights: b.highlights || [],
-      }));
+      const existingBooks = Array.isArray(config.books) ? config.books : [];
+      config.books = booksData.map((b: any) => {
+        const existing = existingBooks.find((item: any) => item.id === b.id);
+        return {
+          ...existing,
+          id: b.id,
+          title: b.title || existing?.title || '',
+          displayTitle: b.display_title || existing?.displayTitle || b.title || '',
+          subtitle: b.subtitle ?? existing?.subtitle ?? '',
+          description: b.description ?? existing?.description ?? '',
+          coverImage: b.cover_image || existing?.coverImage || '',
+          amazonUrl: b.amazon_url || existing?.amazonUrl || '',
+          rating: b.rating ?? existing?.rating ?? 5,
+          reviewCount: b.review_count ?? existing?.reviewCount ?? 1,
+          price: b.price || existing?.price || '$6.95',
+          originalPrice: b.original_price || existing?.originalPrice || '$12.95',
+          publicationYear: b.publication_year || existing?.publicationYear || '2025',
+          highlights:
+            Array.isArray(b.highlights) && b.highlights.length > 0
+              ? b.highlights
+              : existing?.highlights || [],
+        };
+      });
     }
 
     return config;

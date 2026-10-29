@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -71,18 +71,43 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
     setFormData(config);
   }, [config]);
 
-  const handleSave = async () => {
+  // Debounced auto-save: automatically persist changes to storage & Supabase
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        await saveSiteConfig(formData);
+        onUpdateConfig(formData);
+        if (isSupabaseConfigured()) {
+          await saveConfigToSupabase(formData);
+          setSupabaseSyncStatus('Auto-saved to Supabase');
+        }
+      } catch (err) {
+        console.warn('Debounced auto-save note:', err);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [formData]);
+
+  const handleSave = async (customData?: typeof SITE_CONFIG) => {
+    const dataToSave = customData || formData;
     setIsSaving(true);
     setSupabaseSyncStatus('Saving & Syncing...');
 
     try {
       // 1. Reliably save to IndexedDB & safely to localStorage
-      await saveSiteConfig(formData);
-      onUpdateConfig(formData);
+      await saveSiteConfig(dataToSave);
+      onUpdateConfig(dataToSave);
 
       // 2. Sync to Supabase if credentials exist
       if (isSupabaseConfigured()) {
-        const syncRes = await saveConfigToSupabase(formData);
+        const syncRes = await saveConfigToSupabase(dataToSave);
         if (syncRes.success) {
           setSupabaseSyncStatus('Synced with Supabase & Stored!');
         } else {
@@ -101,6 +126,22 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
       setTimeout(() => {
         setSavedToast(false);
       }, 3500);
+    }
+  };
+
+  const handleExitAdmin = async () => {
+    setIsSaving(true);
+    try {
+      await saveSiteConfig(formData);
+      onUpdateConfig(formData);
+      if (isSupabaseConfigured()) {
+        await saveConfigToSupabase(formData);
+      }
+    } catch (e) {
+      console.warn('Auto save on exit note:', e);
+    } finally {
+      setIsSaving(false);
+      onExitAdmin();
     }
   };
 
@@ -155,46 +196,45 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
         quality: 0.84,
       });
 
+      let newConfig: typeof SITE_CONFIG = { ...formData };
       if (type === 'hero') {
-        setFormData((prev: typeof SITE_CONFIG) => ({
-          ...prev,
-          author: { ...prev.author, heroImage: compressedDataUrl },
-        }));
+        newConfig = {
+          ...newConfig,
+          author: { ...newConfig.author, heroImage: compressedDataUrl },
+        };
       } else if (type === 'aboutAuthor' || type === 'author') {
-        setFormData((prev: any) => ({
-          ...prev,
+        newConfig = {
+          ...newConfig,
           author: {
-            ...prev.author,
+            ...newConfig.author,
             aboutImage: compressedDataUrl,
             image: compressedDataUrl,
           },
-        }));
+        };
       } else if (type === 'lifestyle') {
-        setFormData((prev: typeof SITE_CONFIG) => ({
-          ...prev,
-          lifestyle: { ...prev.lifestyle, bgImage: compressedDataUrl },
-        }));
+        newConfig = {
+          ...newConfig,
+          lifestyle: { ...newConfig.lifestyle, bgImage: compressedDataUrl },
+        };
       } else if (type === 'book1') {
-        setFormData((prev: typeof SITE_CONFIG) => {
-          const updated = [...prev.books];
-          if (updated[0]) updated[0] = { ...updated[0], coverImage: compressedDataUrl };
-          return { ...prev, books: updated };
-        });
+        const updated = [...newConfig.books];
+        if (updated[0]) updated[0] = { ...updated[0], coverImage: compressedDataUrl };
+        newConfig = { ...newConfig, books: updated };
       } else if (type === 'book2') {
-        setFormData((prev: typeof SITE_CONFIG) => {
-          const updated = [...prev.books];
-          if (updated[1]) updated[1] = { ...updated[1], coverImage: compressedDataUrl };
-          return { ...prev, books: updated };
-        });
+        const updated = [...newConfig.books];
+        if (updated[1]) updated[1] = { ...updated[1], coverImage: compressedDataUrl };
+        newConfig = { ...newConfig, books: updated };
       } else if (typeof type === 'number') {
-        setFormData((prev: typeof SITE_CONFIG) => {
-          const updated = [...prev.books];
-          if (updated[type]) updated[type] = { ...updated[type], coverImage: compressedDataUrl };
-          return { ...prev, books: updated };
-        });
+        const updated = [...newConfig.books];
+        if (updated[type]) updated[type] = { ...updated[type], coverImage: compressedDataUrl };
+        newConfig = { ...newConfig, books: updated };
       }
-      setUploadingStatus('Image uploaded & optimized!');
-      setTimeout(() => setUploadingStatus(null), 2500);
+
+      setFormData(newConfig);
+      setUploadingStatus('Auto-syncing to Supabase...');
+      await handleSave(newConfig);
+      setUploadingStatus('Image saved & synced to Supabase!');
+      setTimeout(() => setUploadingStatus(null), 3000);
     } catch (err: any) {
       console.error('Image compression error:', err);
       alert('Failed to process image. Please try again or select another image.');
@@ -335,7 +375,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
         {/* Footer Sidebar */}
         <div className="p-4 border-t border-stone-800 space-y-2">
           <button
-            onClick={onExitAdmin}
+            onClick={handleExitAdmin}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition cursor-pointer"
           >
             <LogOut className="w-4 h-4 shrink-0" />
@@ -398,7 +438,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
             </button>
 
             <button
-              onClick={onExitAdmin}
+              onClick={handleExitAdmin}
               className="flex items-center gap-1.5 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-sm font-medium transition border border-stone-700 cursor-pointer"
             >
               <ExternalLink className="w-4 h-4" /> View Live Site

@@ -78,7 +78,9 @@ export const Hero: React.FC<HeroProps> = ({ onSelectBook, config = SITE_CONFIG }
                 <button
                   type="button"
                   onClick={() => {
-                    const url = book1.amazonUrl || 'https://www.amazon.com/dp/B0D1EXAMPLE1';
+                    const defaultUrl1 =
+                      'https://www.amazon.com/Retreadment-Dont-Retire-Life-Structure/dp/B0HBNGXFH6/ref=sr_1_1?crid=1YSO2XRQDNVF6&keywords=Retirement+Don%27t+Retire+from+Life&qid=1793222605&sr=1-1';
+                    const url = book1.amazonUrl || defaultUrl1;
                     window.open(url, '_blank', 'noopener,noreferrer');
                   }}
                   className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#125688]/30 rounded-l-lg transition-colors hover:bg-black/[0.02]"
@@ -88,7 +90,9 @@ export const Hero: React.FC<HeroProps> = ({ onSelectBook, config = SITE_CONFIG }
                 <button
                   type="button"
                   onClick={() => {
-                    const url = book2.amazonUrl || 'https://www.amazon.com/dp/B0D2EXAMPLE2';
+                    const defaultUrl2 =
+                      'https://www.amazon.com/Retreadment-Companion-Better-Write-Practice-ebook/dp/B0HGN8N7C1?ref_=ast_author_dp_rw&th=1&psc=1';
+                    const url = book2.amazonUrl || defaultUrl2;
                     window.open(url, '_blank', 'noopener,noreferrer');
                   }}
                   className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#125688]/30 rounded-r-lg transition-colors hover:bg-black/[0.02]"

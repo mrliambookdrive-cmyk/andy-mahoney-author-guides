@@ -19,8 +19,9 @@ const booksData = [
     subtitle: 'A Practical Guide to Purpose, Structure, and Life After Work',
     description:
       'A practical and inspiring guide to help you find purpose, build structure, and make the most of your retirement years. Filled with real-life tools and actionable steps.',
-    cover_image: '/images/clean_featured_book1.png',
-    amazon_url: 'https://www.amazon.com/dp/B0D1EXAMPLE1',
+    cover_image: '/images/saved_book1_cover.webp',
+    amazon_url:
+      'https://www.amazon.com/Retreadment-Dont-Retire-Life-Structure/dp/B0HBNGXFH6/ref=sr_1_1?crid=1YSO2XRQDNVF6&keywords=Retirement+Don%27t+Retire+from+Life&qid=1793222605&sr=1-1',
     rating: 5,
     review_count: 1,
     price: '$6.95',
@@ -41,8 +42,9 @@ const booksData = [
     subtitle: 'A Practice Guide',
     description:
       "A companion to Retreadment Don't Retire from Life, this guide helps you put ideas into action with practical exercises, journaling prompts, and real-world strategies.",
-    cover_image: '/images/clean_featured_book2.png',
-    amazon_url: 'https://www.amazon.com/dp/B0D2EXAMPLE2',
+    cover_image: '/images/saved_book2_cover.webp',
+    amazon_url:
+      'https://www.amazon.com/Retreadment-Companion-Better-Write-Practice-ebook/dp/B0HGN8N7C1?ref_=ast_author_dp_rw&th=1&psc=1',
     rating: 5,
     review_count: 1,
     price: '$6.95',
@@ -72,12 +74,12 @@ const fullConfig = {
     aboutHeading: 'Andy Mahoney',
     aboutDescription:
       "Andy Mahoney is a passionate writer and advocate for personal growth, purpose, and a better tomorrow. Through his books, he helps readers build better habits, find meaning in every stage of life, and create a future they're excited about.",
-    aboutImage: '/images/new_about_author_desk.png',
-    image: '/images/new_about_author_desk.png',
+    aboutImage: '/images/saved_about_author.webp',
+    image: '/images/saved_about_author.webp',
     quote: 'The best chapter can still be ahead.',
     quoteAttribution: 'Andy Mahoney',
     email: 'contact@andymahoneybooks.com',
-    heroImage: '/images/new_hero_books.png',
+    heroImage: '/images/saved_hero_books.webp',
   },
   socials: {
     email: 'mailto:contact@andymahoneybooks.com',
