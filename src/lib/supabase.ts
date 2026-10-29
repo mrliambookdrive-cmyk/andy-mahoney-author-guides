@@ -3,6 +3,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const STORAGE_KEY_URL = 'andy_supabase_url';
 const STORAGE_KEY_KEY = 'andy_supabase_anon_key';
 
+export const DEFAULT_SUPABASE_URL = 'https://ueinqyzwhiprpsqzabhv.supabase.co';
+export const DEFAULT_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlaW5xeXp3aGlwcnBzcXphYmh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2ODI4NTcsImV4cCI6MjEwODI1ODg1N30.QVHEENSMhYEvFtoVso2yVAlH2B5dW63lPT6RT_OhYrM';
+
 /**
  * Get Supabase credentials from localStorage or Vite environment variables
  */
@@ -16,6 +20,10 @@ export function getSupabaseCredentials(): { url: string; key: string } {
   if (!key && typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) {
     key = import.meta.env.VITE_SUPABASE_ANON_KEY;
   }
+
+  // Fallback to project defaults so app is always connected
+  if (!url) url = DEFAULT_SUPABASE_URL;
+  if (!key) key = DEFAULT_SUPABASE_ANON_KEY;
 
   return { url: url.trim(), key: key.trim() };
 }
@@ -156,12 +164,15 @@ export async function saveConfigToSupabase(config: any): Promise<{ success: bool
         const { error: bookErr } = await client.from('books').upsert({
           id: book.id,
           title: book.title,
+          display_title: book.displayTitle || book.title || '',
           subtitle: book.subtitle || '',
           description: book.description || '',
           cover_image: book.coverImage || '',
           amazon_url: book.amazonUrl || '',
           rating: book.rating || 5,
           review_count: book.reviewCount || 1,
+          price: book.price || '$6.95',
+          original_price: book.originalPrice || '$12.95',
           publication_year: book.publicationYear || '2025',
           highlights: book.highlights || [],
           updated_at: new Date().toISOString(),
@@ -220,13 +231,15 @@ export async function loadConfigFromSupabase(): Promise<any | null> {
       config.books = booksData.map((b: any) => ({
         id: b.id,
         title: b.title,
-        displayTitle: b.title,
+        displayTitle: b.display_title || b.title,
         subtitle: b.subtitle,
         description: b.description,
         coverImage: b.cover_image,
         amazonUrl: b.amazon_url,
         rating: b.rating,
         reviewCount: b.review_count,
+        price: b.price || '$6.95',
+        originalPrice: b.original_price || '$12.95',
         publicationYear: b.publication_year,
         highlights: b.highlights || [],
       }));

@@ -1,21 +1,28 @@
+-- ==============================================================================
 -- Supabase Database Schema for Andy Mahoney Author Website CMS
+-- Run this in your Supabase SQL Editor:
+-- https://supabase.com/dashboard/project/ueinqyzwhiprpsqzabhv/sql/new
+-- ==============================================================================
 
 -- 1. Books Table
 CREATE TABLE IF NOT EXISTS public.books (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
+  display_title TEXT,
   subtitle TEXT,
   description TEXT,
   cover_image TEXT,
   amazon_url TEXT,
   rating NUMERIC DEFAULT 5,
   review_count INTEGER DEFAULT 1,
-  publication_year TEXT,
-  highlights JSONB,
+  price TEXT DEFAULT '$6.95',
+  original_price TEXT DEFAULT '$12.95',
+  publication_year TEXT DEFAULT '2025',
+  highlights JSONB DEFAULT '[]'::jsonb,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. Site Settings Table (Hero, About, Lifestyle, etc.)
+-- 2. Site Settings Table (Hero, About, Lifestyle, Socials, Benefits, Testimonials)
 CREATE TABLE IF NOT EXISTS public.site_settings (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL,
@@ -32,17 +39,25 @@ CREATE TABLE IF NOT EXISTS public.contacts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable RLS (Row Level Security) if needed or public access for demo
+-- Enable Row Level Security (RLS)
 ALTER TABLE public.books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
 
--- Create policies for public read and authenticated/anon upsert
-CREATE POLICY "Allow public read books" ON public.books FOR SELECT USING (true);
-CREATE POLICY "Allow public upsert books" ON public.books FOR ALL USING (true);
+-- Clean existing policies if re-running
+DROP POLICY IF EXISTS "Allow public all books" ON public.books;
+DROP POLICY IF EXISTS "Allow public read books" ON public.books;
+DROP POLICY IF EXISTS "Allow public upsert books" ON public.books;
 
-CREATE POLICY "Allow public read settings" ON public.site_settings FOR SELECT USING (true);
-CREATE POLICY "Allow public upsert settings" ON public.site_settings FOR ALL USING (true);
+DROP POLICY IF EXISTS "Allow public all settings" ON public.site_settings;
+DROP POLICY IF EXISTS "Allow public read settings" ON public.site_settings;
+DROP POLICY IF EXISTS "Allow public upsert settings" ON public.site_settings;
 
-CREATE POLICY "Allow public insert contacts" ON public.contacts FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public read contacts" ON public.contacts FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow public all contacts" ON public.contacts;
+DROP POLICY IF EXISTS "Allow public insert contacts" ON public.contacts;
+DROP POLICY IF EXISTS "Allow public read contacts" ON public.contacts;
+
+-- Create open policies for web app access
+CREATE POLICY "Allow public all books" ON public.books FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all contacts" ON public.contacts FOR ALL USING (true) WITH CHECK (true);
