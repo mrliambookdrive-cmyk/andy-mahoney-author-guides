@@ -99,10 +99,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               About
             </button>
             <button
-              onClick={() => scrollTo('why-read')}
+              onClick={() => scrollTo('blog')}
               className="transition-colors py-2 cursor-pointer hover:text-[#125688]"
             >
               Blog
+            </button>
+            <button
+              onClick={() => scrollTo('reviews')}
+              className="transition-colors py-2 cursor-pointer hover:text-[#125688]"
+            >
+              Reviews
             </button>
             <button
               onClick={onOpenContact}
@@ -176,10 +182,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               About
             </button>
             <button
-              onClick={() => scrollTo('why-read')}
+              onClick={() => scrollTo('blog')}
               className="text-left py-2 hover:text-[#125688] border-b border-stone-100"
             >
               Blog
+            </button>
+            <button
+              onClick={() => scrollTo('reviews')}
+              className="text-left py-2 hover:text-[#125688] border-b border-stone-100"
+            >
+              Reviews
             </button>
             <button
               onClick={() => {

@@ -77,17 +77,23 @@ export const Hero: React.FC<HeroProps> = ({ onSelectBook, config = SITE_CONFIG }
               <div className="absolute inset-0 grid grid-cols-2 pointer-events-auto">
                 <button
                   type="button"
-                  onClick={() => onSelectBook(book1)}
+                  onClick={() => {
+                    const url = book1.amazonUrl || 'https://www.amazon.com/dp/B0D1EXAMPLE1';
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }}
                   className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#125688]/30 rounded-l-lg transition-colors hover:bg-black/[0.02]"
-                  title="Click to view Retreadment Don't Retire from Life details"
-                  aria-label="View Retreadment Don't Retire from Life"
+                  title="Open Retirement Don't Retire from Life on Amazon (opens new tab)"
+                  aria-label="View Retreadment Don't Retire from Life on Amazon"
                 />
                 <button
                   type="button"
-                  onClick={() => onSelectBook(book2)}
+                  onClick={() => {
+                    const url = book2.amazonUrl || 'https://www.amazon.com/dp/B0D2EXAMPLE2';
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }}
                   className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#125688]/30 rounded-r-lg transition-colors hover:bg-black/[0.02]"
-                  title="Click to view The Retreadment Companion details"
-                  aria-label="View The Retreadment Companion"
+                  title="Open The Retirement Companion on Amazon (opens new tab)"
+                  aria-label="View The Retirement Companion on Amazon"
                 />
               </div>
             </div>

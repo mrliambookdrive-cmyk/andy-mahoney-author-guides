@@ -59,6 +59,16 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
         <div className="grid grid-cols-2 divide-x divide-stone-200 max-w-6xl mx-auto items-stretch">
           {bookList.map(({ book, defaultCover, displayTitle, subtitle, price, originalPrice, ratingCount }, idx) => {
             const coverSrc = book.coverImage || defaultCover;
+            const amazonLink =
+              book.amazonUrl ||
+              (book.id === 'retreadment-companion'
+                ? 'https://www.amazon.com/dp/B0D2EXAMPLE2'
+                : 'https://www.amazon.com/dp/B0D1EXAMPLE1');
+
+            const handleOpenAmazon = (e?: React.MouseEvent) => {
+              if (e) e.preventDefault();
+              window.open(amazonLink, '_blank', 'noopener,noreferrer');
+            };
 
             return (
               <div
@@ -67,10 +77,11 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
                   idx === 0 ? 'md:pr-10 lg:pr-12' : 'md:pl-10 lg:pl-12'
                 }`}
               >
-                {/* Book Cover with 3D drop shadow */}
+                {/* Book Cover with 3D drop shadow - Opens Amazon directly in new tab */}
                 <div
-                  onClick={() => onSelectBook(book)}
+                  onClick={handleOpenAmazon}
                   className="w-36 sm:w-44 shrink-0 cursor-pointer transition-transform duration-300 hover:scale-105"
+                  title={`View "${displayTitle}" on Amazon (opens new tab)`}
                 >
                   <img
                     src={coverSrc}
@@ -83,10 +94,11 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
                 {/* Book Meta & Details */}
                 <div className="flex-1 flex flex-col justify-between text-left">
                   <div>
-                    {/* Title */}
+                    {/* Title - Opens Amazon in new tab */}
                     <h3
-                      onClick={() => onSelectBook(book)}
+                      onClick={handleOpenAmazon}
                       className="font-serif text-xl sm:text-[22px] font-bold text-[#0E1E31] leading-snug hover:text-[#125688] transition-colors cursor-pointer"
+                      title={`View "${displayTitle}" on Amazon (opens new tab)`}
                     >
                       {displayTitle}
                     </h3>
@@ -103,7 +115,11 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
                           <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B]" />
                         ))}
                       </div>
-                      <span className="text-xs font-medium text-[#125688] hover:underline cursor-pointer ml-1">
+                      <span
+                        onClick={handleOpenAmazon}
+                        className="text-xs font-medium text-[#125688] hover:underline cursor-pointer ml-1"
+                        title="View reader reviews on Amazon"
+                      >
                         ({ratingCount})
                       </span>
                     </div>
@@ -121,15 +137,19 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
                     </div>
                   </div>
 
-                  {/* View Details CTA Button */}
+                  {/* View Details CTA Button - Opens directly in new tab like Amazon */}
                   <div>
-                    <button
-                      onClick={() => onSelectBook(book)}
+                    <a
+                      href={amazonLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={handleOpenAmazon}
                       className="inline-flex items-center space-x-1.5 bg-[#125688] hover:bg-[#0E4770] text-white px-5 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-all shadow-xs hover:shadow-md cursor-pointer group"
+                      title={`Open "${displayTitle}" on Amazon in a new tab`}
                     >
                       <span>View Details</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

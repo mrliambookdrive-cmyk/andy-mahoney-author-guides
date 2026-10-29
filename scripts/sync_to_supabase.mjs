@@ -144,7 +144,7 @@ const fullConfig = {
     buttonText: 'Subscribe',
     privacyNote: 'No spam. Just good reads.',
   },
-  designVersion: 4,
+  designVersion: 5,
 };
 
 async function syncToSupabase() {

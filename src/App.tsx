@@ -4,10 +4,11 @@ import { Hero } from './components/Hero';
 import { FeaturedBooks } from './components/FeaturedBooks';
 import { AboutAuthor } from './components/AboutAuthor';
 import { BenefitsStrip } from './components/BenefitsStrip';
+import { BlogSection } from './components/BlogSection';
+import { Testimonials } from './components/Testimonials';
 import { Newsletter } from './components/Newsletter';
 import { Footer } from './components/Footer';
 import { ContactModal } from './components/ContactModal';
-import { BookDetailModal } from './components/BookDetailModal';
 import { PolicyModal } from './components/PolicyModal';
 import { SearchModal } from './components/SearchModal';
 import { CartModal } from './components/CartModal';
@@ -28,13 +29,13 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(null);
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
-  // Load config: prefer new design version 4 or fallback to updated DEFAULT_SITE_CONFIG
+  // Load config: prefer new design version 5 or fallback to updated DEFAULT_SITE_CONFIG
   const [config, setConfig] = useState(() => {
     const saved = getSyncSiteConfig();
-    if (saved && saved.designVersion === 4 && !saved.newsletter?.heading?.includes('Get Updates')) {
+    if (saved && saved.designVersion === 5 && !saved.newsletter?.heading?.includes('Get Updates')) {
       return saved;
     }
-    return { ...DEFAULT_SITE_CONFIG, designVersion: 4 };
+    return { ...DEFAULT_SITE_CONFIG, designVersion: 5 };
   });
 
   const [books, setBooks] = useState<BookInfo[]>(config.books || DEFAULT_SITE_CONFIG.books);
@@ -44,7 +45,7 @@ export default function App() {
     const initConfig = async () => {
       // 1. Load from IndexedDB/localStorage first for instant render
       const loaded = await loadSiteConfig();
-      if (loaded && loaded.designVersion === 4 && !loaded.newsletter?.heading?.includes('Get Updates')) {
+      if (loaded && loaded.designVersion === 5 && !loaded.newsletter?.heading?.includes('Get Updates')) {
         setConfig(loaded);
         if (loaded.books) {
           setBooks(loaded.books);
@@ -60,7 +61,7 @@ export default function App() {
             heroImage: DEFAULT_SITE_CONFIG.author.heroImage,
           },
           books: DEFAULT_SITE_CONFIG.books,
-          designVersion: 4,
+          designVersion: 5,
         };
         setConfig(freshConfig);
         setBooks(freshConfig.books);
@@ -155,6 +156,15 @@ export default function App() {
     }
   };
 
+  const handleOpenBookAmazon = (book: BookInfo) => {
+    const url =
+      book.amazonUrl ||
+      (book.id === 'retreadment-companion'
+        ? 'https://www.amazon.com/dp/B0D2EXAMPLE2'
+        : 'https://www.amazon.com/dp/B0D1EXAMPLE1');
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   // If Admin Dashboard is open, render full-screen admin dashboard page
   if (isAdminOpen) {
     return (
@@ -178,13 +188,13 @@ export default function App() {
 
       <main className="flex-grow">
         {/* 2. Hero Section: "Better Habits. A Brighter Future." */}
-        <Hero onSelectBook={(book) => setSelectedBook(book)} config={config} />
+        <Hero onSelectBook={handleOpenBookAmazon} config={config} />
 
         {/* 3. Featured Books Section: "Books for a More Fulfilling Tomorrow" */}
         <FeaturedBooks
           books={books}
           config={config}
-          onSelectBook={(book) => setSelectedBook(book)}
+          onSelectBook={handleOpenBookAmazon}
         />
 
         {/* 4. About the Author Section: Desk with Books & Andy Mahoney */}
@@ -193,11 +203,17 @@ export default function App() {
         {/* 5. Benefits Section: "WHY READ ANDY MAHONEY / More Than Just Books" */}
         <BenefitsStrip />
 
-        {/* 6. Newsletter Section: "Stay Inspired" */}
+        {/* 6. Blog & Articles Section: "From the Author's Desk / Practical Life Guides" */}
+        <BlogSection />
+
+        {/* 7. What Readers Say Section: "Reader Reviews & Praise" */}
+        <Testimonials config={config} />
+
+        {/* 8. Newsletter Section: "Stay Inspired" */}
         <Newsletter config={config} />
       </main>
 
-      {/* 7. Dark Navy Footer */}
+      {/* 9. Dark Navy Footer */}
       <Footer
         onOpenContact={() => setIsContactOpen(true)}
         onOpenPrivacy={() => setPolicyType('privacy')}
@@ -237,7 +253,7 @@ export default function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         books={books}
-        onSelectBook={(book) => setSelectedBook(book)}
+        onSelectBook={handleOpenBookAmazon}
       />
 
       <CartModal
@@ -249,12 +265,6 @@ export default function App() {
       <ContactModal
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}
-      />
-
-      <BookDetailModal
-        book={selectedBook}
-        onClose={() => setSelectedBook(null)}
-        onUpdateAmazonUrl={handleUpdateAmazonUrl}
       />
 
       <PolicyModal

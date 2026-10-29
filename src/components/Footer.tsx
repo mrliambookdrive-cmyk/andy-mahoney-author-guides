@@ -73,10 +73,16 @@ export const Footer: React.FC<FooterProps> = ({
               About
             </button>
             <button
-              onClick={() => scrollTo('why-read')}
+              onClick={() => scrollTo('blog')}
               className="hover:text-white transition-colors cursor-pointer"
             >
               Blog
+            </button>
+            <button
+              onClick={() => scrollTo('reviews')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              What Readers Say
             </button>
             <button
               onClick={onOpenContact}
