@@ -92,27 +92,41 @@ function decodePng(buf) {
   return { w, h, pixels };
 }
 
-// 1. Load source image
-const srcPath = 'C:/Users/Rana Adeel/.gemini/antigravity/brain/a4f75e34-d104-42fd-a98d-7e8be6ee7b3f/.user_uploaded/media_1793297191597_f9e6a67b.png';
+// 1. Load source master banner image (full HD original)
+const srcPath = fs.existsSync('public/images/newsletter_full_banner.png')
+  ? 'public/images/newsletter_full_banner.png'
+  : 'C:/Users/Rana Adeel/.gemini/antigravity/brain/a4f75e34-d104-42fd-a98d-7e8be6ee7b3f/.user_uploaded/media_1793298174388_1557a384.png';
 const { w, h, pixels } = decodePng(fs.readFileSync(srcPath));
 
-// Calligraphy crop bounds: tight padding around "Better Every Day"
-const cropX = 150, cropY = 44, cropW = 175, cropH = 138;
-const bgR = 218, bgG = 232, bgB = 241;
+// Calligraphy crop bounds from the full banner
+const cropX = 840, cropY = 24, cropW = 180, cropH = 112;
+
+function getEstimatedBg(x, y) {
+  const normY = (y - cropY) / cropH;
+  const r = 180 * (1 - normY) + 100 * normY;
+  const g = 222 * (1 - normY) + 155 * normY;
+  const b = 247 * (1 - normY) + 202 * normY;
+  return [r, g, b];
+}
 
 // 2. Build normalized float alpha mask (0.0 to 1.0)
 const srcMask = [];
-for (let y = 0; y < cropH; y++) {
+for (let cy = 0; cy < cropH; cy++) {
   const row = [];
-  for (let x = 0; x < cropW; x++) {
-    const srcX = cropX + x, srcY = cropY + y;
-    const idx = (srcY * w + srcX) * 4;
+  const y = cropY + cy;
+  for (let cx = 0; cx < cropW; cx++) {
+    const x = cropX + cx;
+    const idx = (y * w + x) * 4;
     const r = pixels[idx], g = pixels[idx + 1], b = pixels[idx + 2];
-    
-    // Calculate color distance from light-blue background
+    const [bgR, bgG, bgB] = getEstimatedBg(x, y);
+
     const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-    // Sigmoid threshold: below 18 is pure transparent, smoothly ramps up to 1.0
-    let a = (dist - 14) / 75;
+    const bgLum = 0.299 * bgR + 0.587 * bgG + 0.114 * bgB;
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    const lumDiff = Math.max(0, bgLum - lum);
+
+    let a = (lumDiff - 10) / 60;
+    if (dist < 15) a = 0;
     a = Math.min(1.0, Math.max(0.0, a));
     row.push(a);
   }
