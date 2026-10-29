@@ -65,13 +65,17 @@ export default function App() {
         try {
           const cloudConfig = await loadConfigFromSupabase();
           if (isMounted && cloudConfig && Array.isArray(cloudConfig.books) && cloudConfig.books.length > 0) {
-            // Compare to avoid unnecessary re-render / layout shift
-            const currentStr = JSON.stringify(config);
-            const cloudStr = JSON.stringify(cloudConfig);
-            if (currentStr !== cloudStr) {
-              setConfig(cloudConfig);
-              setBooks(cloudConfig.books);
-            }
+            setConfig((prevConfig) => {
+              const currentStr = JSON.stringify(prevConfig);
+              const cloudStr = JSON.stringify(cloudConfig);
+              if (currentStr !== cloudStr) {
+                if (cloudConfig.books && Array.isArray(cloudConfig.books)) {
+                  setBooks(cloudConfig.books);
+                }
+                return cloudConfig;
+              }
+              return prevConfig;
+            });
             // Always persist latest cloud config into cache for instantaneous next refresh
             await saveSiteConfig(cloudConfig);
           }
@@ -139,8 +143,11 @@ export default function App() {
   }, []);
 
   const handleUpdateConfig = (newConfig: typeof SITE_CONFIG) => {
-    const versioned = { ...newConfig, designVersion: 2 };
+    const versioned = { ...newConfig, designVersion: 5 };
     setConfig(versioned);
+    if (Array.isArray(versioned.books) && versioned.books.length > 0) {
+      setBooks(versioned.books);
+    }
     saveSiteConfig(versioned).catch((err) => {
       console.warn('Storage warning:', err);
     });

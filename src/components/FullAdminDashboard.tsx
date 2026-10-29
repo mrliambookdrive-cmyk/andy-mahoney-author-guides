@@ -54,7 +54,19 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
 }) => {
   const [formData, setFormData] = useState<typeof SITE_CONFIG>(config);
   const [activeMenu, setActiveMenu] = useState<'overview' | 'books' | 'media' | 'homepage' | 'about' | 'lifestyle' | 'testimonials' | 'settings'>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+
+  const handleNav = (tab: typeof activeMenu) => {
+    setActiveMenu(tab);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
   const [savedToast, setSavedToast] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingStatus, setUploadingStatus] = useState<string | null>(null);
@@ -243,15 +255,23 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-stone-900 text-stone-100 flex font-sans selection:bg-[#B87B33] selection:text-white">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-stone-900 text-stone-100 flex font-sans selection:bg-[#B87B33] selection:text-white relative">
+      {/* Mobile Drawer Backdrop */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-xs lg:hidden transition-opacity"
+        />
+      )}
+
+      {/* Sidebar Drawer */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 bg-[#0A1118] border-r border-stone-800 transition-all duration-300 flex flex-col ${
-          sidebarOpen ? 'w-64' : 'w-20'
+          sidebarOpen ? 'w-64 translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 lg:w-20'
         }`}
       >
         {/* Brand */}
-        <div className="p-6 border-b border-stone-800 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-stone-800 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#B87B33] to-amber-600 flex items-center justify-center font-bold text-white shadow-lg shrink-0">
               AM
@@ -266,17 +286,20 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
             )}
           </div>
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="text-stone-400 hover:text-white p-1.5 rounded-lg hover:bg-stone-800 transition cursor-pointer"
+            title="Toggle Menu"
           >
-            <Menu className="w-5 h-5" />
+            {sidebarOpen ? <X className="w-5 h-5 lg:hidden" /> : null}
+            <Menu className="w-5 h-5 hidden lg:block" />
           </button>
         </div>
 
         {/* Navigation Links */}
-        <nav className="p-4 space-y-1.5 flex-grow overflow-y-auto">
+        <nav className="p-3 sm:p-4 space-y-1.5 flex-grow overflow-y-auto">
           <button
-            onClick={() => setActiveMenu('overview')}
+            onClick={() => handleNav('overview')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'overview'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -288,7 +311,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('books')}
+            onClick={() => handleNav('books')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'books'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -300,7 +323,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('media')}
+            onClick={() => handleNav('media')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'media'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -312,7 +335,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('homepage')}
+            onClick={() => handleNav('homepage')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'homepage'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -324,7 +347,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('about')}
+            onClick={() => handleNav('about')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'about'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -336,7 +359,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('lifestyle')}
+            onClick={() => handleNav('lifestyle')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'lifestyle'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -348,7 +371,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('testimonials')}
+            onClick={() => handleNav('testimonials')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'testimonials'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -360,7 +383,7 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMenu('settings')}
+            onClick={() => handleNav('settings')}
             className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${
               activeMenu === 'settings'
                 ? 'bg-[#B87B33] text-white shadow-lg shadow-amber-950/30'
@@ -385,45 +408,56 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
       </aside>
 
       {/* Main Wrapper */}
-      <div className={`flex-grow flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-grow flex flex-col transition-all duration-300 ml-0 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} min-w-0 pb-20 lg:pb-0`}>
         {/* Top Navbar */}
-        <header className="sticky top-0 z-40 bg-stone-900/90 backdrop-blur-md border-b border-stone-800 px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold font-serif capitalize text-white">
-              {activeMenu} Management
-            </h2>
-            <span className="text-xs bg-stone-800 text-stone-300 px-3 py-1 rounded-full border border-stone-700 flex items-center gap-1.5">
-              <Database className="w-3 h-3 text-emerald-400" /> {supabaseSyncStatus}
-            </span>
+        <header className="sticky top-0 z-30 bg-stone-900/95 backdrop-blur-md border-b border-stone-800 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 transition cursor-pointer"
+              title="Open Navigation Menu"
+              aria-label="Toggle Menu"
+            >
+              <Menu className="w-5 h-5 text-amber-400" />
+            </button>
+            <div>
+              <h2 className="text-base sm:text-xl font-bold font-serif capitalize text-white">
+                {activeMenu} Management
+              </h2>
+              <span className="hidden sm:inline-flex text-xs bg-stone-800 text-stone-300 px-2.5 py-0.5 rounded-full border border-stone-700 items-center gap-1.5 mt-0.5">
+                <Database className="w-3 h-3 text-emerald-400" /> {supabaseSyncStatus}
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center flex-wrap gap-2 sm:gap-3">
             {uploadingStatus && (
-              <span className="flex items-center gap-1.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3.5 py-1.5 rounded-full font-medium shadow-md animate-pulse">
+              <span className="flex items-center gap-1.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 sm:px-3.5 py-1.5 rounded-full font-medium shadow-md animate-pulse">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" /> {uploadingStatus}
               </span>
             )}
 
             {savedToast && (
-              <span className="flex items-center gap-1.5 text-xs bg-emerald-600 text-white px-3.5 py-1.5 rounded-full font-medium shadow-lg animate-bounce">
-                <Check className="w-4 h-4" /> Changes Published & Synced! Reloading...
+              <span className="flex items-center gap-1.5 text-xs bg-emerald-600 text-white px-2.5 sm:px-3.5 py-1.5 rounded-full font-medium shadow-lg animate-bounce">
+                <Check className="w-4 h-4" /> Synced & Saved!
               </span>
             )}
 
             <button
-              onClick={handleSave}
+              onClick={() => handleSave()}
               disabled={isSaving || !!uploadingStatus}
-              className={`flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#B87B33] to-amber-600 hover:from-amber-600 hover:to-[#B87B33] text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-950/40 transition-all transform active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-[#B87B33] to-amber-600 hover:from-amber-600 hover:to-[#B87B33] text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-950/40 transition-all transform active:scale-95 cursor-pointer ${
                 isSaving || !!uploadingStatus ? 'opacity-60 cursor-not-allowed' : ''
               }`}
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Saving & Storing...
+                  <Loader2 className="w-4 h-4 animate-spin" /> <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" /> Save & Sync to Supabase
+                  <Save className="w-4 h-4" /> <span>Save & Sync</span>
                 </>
               )}
             </button>
@@ -432,22 +466,22 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
               onClick={handleClearCacheAndReload}
               disabled={isSaving}
               title="Clear all browser cache and reload fresh data from Supabase"
-              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs sm:text-sm font-semibold border border-stone-700 transition cursor-pointer"
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold border border-stone-700 transition cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-amber-400" /> Clear Cache & Refresh
+              <RefreshCw className="w-3.5 h-3.5 text-amber-400" /> <span>Clear Cache</span>
             </button>
 
             <button
               onClick={handleExitAdmin}
-              className="flex items-center gap-1.5 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-sm font-medium transition border border-stone-700 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs sm:text-sm font-medium transition border border-stone-700 cursor-pointer"
             >
-              <ExternalLink className="w-4 h-4" /> View Live Site
+              <ExternalLink className="w-4 h-4" /> <span className="hidden sm:inline">View</span> Live Site
             </button>
           </div>
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-8 flex-grow space-y-8 bg-stone-950/40 overflow-y-auto">
+        <main className="p-4 sm:p-6 lg:p-8 flex-grow space-y-6 sm:space-y-8 bg-stone-950/40 overflow-y-auto">
           {/* OVERVIEW TAB */}
           {activeMenu === 'overview' && (
             <div className="space-y-8 animate-in fade-in duration-200">
@@ -1557,6 +1591,27 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
             </div>
           )}
         </main>
+      </div>
+
+      {/* Mobile Sticky Bottom Save & Exit Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A1118]/95 backdrop-blur-md border-t border-stone-800 p-3 px-4 flex items-center justify-between gap-3 shadow-2xl">
+        <button
+          type="button"
+          onClick={() => handleSave()}
+          disabled={isSaving || !!uploadingStatus}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-[#B87B33] to-amber-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-950/40 active:scale-95 disabled:opacity-60 transition cursor-pointer"
+        >
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          <span>Save Changes to Supabase</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleExitAdmin}
+          className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 bg-stone-800 text-stone-200 rounded-xl text-sm font-medium border border-stone-700 hover:bg-stone-700 active:scale-95 transition cursor-pointer"
+        >
+          <ExternalLink className="w-4 h-4" />
+          <span>Exit</span>
+        </button>
       </div>
     </div>
   );

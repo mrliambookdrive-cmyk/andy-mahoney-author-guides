@@ -55,8 +55,8 @@ export const FeaturedBooks: React.FC<FeaturedBooksProps> = ({
           </h2>
         </div>
 
-        {/* Side-by-Side Dual Books Container with Vertical Divider */}
-        <div className="grid grid-cols-2 divide-x divide-stone-200 max-w-6xl mx-auto items-stretch">
+        {/* Dual Books Container: 1 col on mobile, side-by-side with vertical divider on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-stone-200 max-w-6xl mx-auto items-stretch">
           {bookList.map(({ book, defaultCover, displayTitle, subtitle, price, originalPrice, ratingCount }, idx) => {
             const coverSrc = book.coverImage || defaultCover;
             const defaultUrl1 =
