@@ -158,21 +158,18 @@ export async function saveConfigToSupabase(config: any): Promise<{ success: bool
   }
 
   try {
-    // 1. Upsert books table
+    // 1. Upsert books table (matching Supabase public.books schema columns)
     if (Array.isArray(config.books)) {
       for (const book of config.books) {
         const { error: bookErr } = await client.from('books').upsert({
           id: book.id,
           title: book.title,
-          display_title: book.displayTitle || book.title || '',
           subtitle: book.subtitle || '',
           description: book.description || '',
           cover_image: book.coverImage || '',
           amazon_url: book.amazonUrl || '',
           rating: book.rating || 5,
           review_count: book.reviewCount || 1,
-          price: book.price || '$6.95',
-          original_price: book.originalPrice || '$12.95',
           publication_year: book.publicationYear || '2025',
           highlights: book.highlights || [],
           updated_at: new Date().toISOString(),

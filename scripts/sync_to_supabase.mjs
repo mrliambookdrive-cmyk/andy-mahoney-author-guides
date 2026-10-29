@@ -173,10 +173,23 @@ async function syncToSupabase() {
     // 2. Upsert Books
     console.log('📦 Upserting books to Supabase...');
     for (const book of booksData) {
+      const bookPayload = {
+        id: book.id,
+        title: book.title,
+        subtitle: book.subtitle,
+        description: book.description,
+        cover_image: book.cover_image,
+        amazon_url: book.amazon_url,
+        rating: book.rating,
+        review_count: book.review_count,
+        publication_year: book.publication_year,
+        highlights: book.highlights,
+        updated_at: book.updated_at,
+      };
       const res = await fetch(`${SUPABASE_URL}/rest/v1/books`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(book),
+        body: JSON.stringify(bookPayload),
       });
       if (!res.ok) {
         const text = await res.text();
