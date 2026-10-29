@@ -173,36 +173,15 @@ const getInitialConfig = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // If it's from an older design version, upgrade to new approved design
-        if (!parsed.designVersion || parsed.designVersion < 5 || parsed.newsletter?.heading?.includes('Get Updates')) {
-          const upgraded = {
-            ...DEFAULT_SITE_CONFIG,
-            ...parsed,
-            newsletter: { ...DEFAULT_SITE_CONFIG.newsletter },
-            author: {
-              ...DEFAULT_SITE_CONFIG.author,
-              ...(parsed.author || {}),
-              aboutImage: '/images/new_about_author_desk.png',
-              image: '/images/new_about_author_desk.png',
-              heroHeadline: DEFAULT_SITE_CONFIG.author.heroHeadline,
-              heroHeadlineHighlight: DEFAULT_SITE_CONFIG.author.heroHeadlineHighlight,
-              heroDescription: DEFAULT_SITE_CONFIG.author.heroDescription,
-              heroImage: DEFAULT_SITE_CONFIG.author.heroImage,
-            },
-            collection: { ...DEFAULT_SITE_CONFIG.collection },
-            books: DEFAULT_SITE_CONFIG.books,
-            designVersion: 5,
-          };
-          localStorage.setItem('andy_site_config', JSON.stringify(upgraded));
-          return upgraded;
+        if (parsed && Array.isArray(parsed.books) && parsed.books.length > 0) {
+          return parsed;
         }
-        return parsed;
       } catch (e) {
         console.error('Error parsing site config', e);
       }
     }
   }
-  return { ...DEFAULT_SITE_CONFIG, designVersion: 5 };
+  return DEFAULT_SITE_CONFIG;
 };
 
 export const SITE_CONFIG = getInitialConfig();

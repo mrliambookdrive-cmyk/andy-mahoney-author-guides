@@ -29,63 +29,63 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(null);
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
-  // Load config: prefer new design version 5 or fallback to updated DEFAULT_SITE_CONFIG
-  const [config, setConfig] = useState(() => {
-    const saved = getSyncSiteConfig();
-    if (saved && saved.designVersion === 5 && !saved.newsletter?.heading?.includes('Get Updates')) {
-      return saved;
+  // Instant synchronous initialization from cache: zero delay, zero stale flash on refresh
+  const [config, setConfig] = useState<typeof SITE_CONFIG>(() => {
+    const cached = getSyncSiteConfig();
+    if (cached && Array.isArray(cached.books) && cached.books.length > 0) {
+      return cached;
     }
-    return { ...DEFAULT_SITE_CONFIG, designVersion: 5 };
+    return DEFAULT_SITE_CONFIG;
   });
 
-  const [books, setBooks] = useState<BookInfo[]>(config.books || DEFAULT_SITE_CONFIG.books);
+  const [books, setBooks] = useState<BookInfo[]>(() => {
+    const cached = getSyncSiteConfig();
+    if (cached && Array.isArray(cached.books) && cached.books.length > 0) {
+      return cached.books;
+    }
+    return DEFAULT_SITE_CONFIG.books;
+  });
 
-  // Load latest config: local storage first for speed, then Supabase if connected
+  // Background silent sync: keeps local state authoritative without UI flickering
   useEffect(() => {
-    const initConfig = async () => {
-      // 1. Load from IndexedDB/localStorage first for instant render
-      const loaded = await loadSiteConfig();
-      if (loaded && loaded.designVersion === 5 && !loaded.newsletter?.heading?.includes('Get Updates')) {
-        setConfig(loaded);
-        if (loaded.books) {
-          setBooks(loaded.books);
+    let isMounted = true;
+
+    const syncAuthoritativeData = async () => {
+      // 1. If localStorage was empty, check IndexedDB
+      if (!getSyncSiteConfig()) {
+        const idbData = await loadSiteConfig();
+        if (isMounted && idbData && Array.isArray(idbData.books) && idbData.books.length > 0) {
+          setConfig(idbData);
+          setBooks(idbData.books);
         }
-      } else {
-        const freshConfig = {
-          ...DEFAULT_SITE_CONFIG,
-          ...(loaded || {}),
-          newsletter: { ...DEFAULT_SITE_CONFIG.newsletter },
-          author: {
-            ...DEFAULT_SITE_CONFIG.author,
-            aboutImage: DEFAULT_SITE_CONFIG.author.aboutImage,
-            heroImage: DEFAULT_SITE_CONFIG.author.heroImage,
-          },
-          books: DEFAULT_SITE_CONFIG.books,
-          designVersion: 5,
-        };
-        setConfig(freshConfig);
-        setBooks(freshConfig.books);
-        saveSiteConfig(freshConfig).catch(() => {});
       }
 
-      // 2. If Supabase is configured, fetch latest database state & sync
+      // 2. Silently fetch from Supabase in the background
       if (isSupabaseConfigured()) {
         try {
-          const supabaseConfig = await loadConfigFromSupabase();
-          if (supabaseConfig) {
-            setConfig(supabaseConfig);
-            if (supabaseConfig.books) {
-              setBooks(supabaseConfig.books);
+          const cloudConfig = await loadConfigFromSupabase();
+          if (isMounted && cloudConfig && Array.isArray(cloudConfig.books) && cloudConfig.books.length > 0) {
+            // Compare to avoid unnecessary re-render / layout shift
+            const currentStr = JSON.stringify(config);
+            const cloudStr = JSON.stringify(cloudConfig);
+            if (currentStr !== cloudStr) {
+              setConfig(cloudConfig);
+              setBooks(cloudConfig.books);
             }
-            await saveSiteConfig(supabaseConfig);
+            // Always persist latest cloud config into cache for instantaneous next refresh
+            await saveSiteConfig(cloudConfig);
           }
         } catch (err) {
-          console.warn('Could not sync with Supabase on startup:', err);
+          console.warn('Silent cloud sync note:', err);
         }
       }
     };
 
-    initConfig();
+    syncAuthoritativeData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Update books when config changes

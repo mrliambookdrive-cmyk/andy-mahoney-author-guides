@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Calendar, Clock, ArrowRight, X, Sparkles, User } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, X, BookOpen, Sparkles, User, Tag } from 'lucide-react';
 
 export interface BlogPost {
   id: string;
@@ -9,6 +9,7 @@ export interface BlogPost {
   readTime: string;
   summary: string;
   image: string;
+  fallbackImage: string;
   content: {
     heading: string;
     body: string;
@@ -19,12 +20,13 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     id: 'post-career-blueprint',
     title: 'The Post-Career Blueprint: How to Redefine Your Identity After Work',
-    category: 'Purpose & Transition',
+    category: 'Purpose & Retirement',
     date: 'October 2026',
     readTime: '5 min read',
-    image: '/images/lifestyle_banner_clean.png',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/mountain_lake.png',
     summary:
-      "For decades, your job gave you a structured day and an easy answer to 'What do you do?' Leaving that behind is not an ending—it is the opening chapter of your most creative years.",
+      "For decades, your career gave you a daily schedule and an answer to 'Who are you?' Leaving it behind is not the end—it is an extraordinary opportunity to build a chapter built around what truly matters.",
     content: [
       {
         heading: '1. Beyond the Business Card: Rediscovering Who You Are',
@@ -46,7 +48,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: 'Daily Habits',
     date: 'September 2026',
     readTime: '4 min read',
-    image: '/images/card1_hd.png',
+    image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/about_desk_clean.png',
     summary:
       'Lasting transformation rarely comes from overwhelming resolutions. Discover the three quiet, high-leverage rituals that set an intentional tone for your entire day.',
     content: [
@@ -70,7 +73,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: 'Growth & Vitality',
     date: 'August 2026',
     readTime: '6 min read',
-    image: '/images/card2_hd.png',
+    image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/lifestyle_lake.jpg',
     summary:
       'Neuroscience reveals what reflective writers have always known: stepping outside your comfort zone and tackling new skills keeps your mind agile, resilient, and energized.',
     content: [
@@ -88,49 +92,156 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
   },
+  {
+    id: 'legacy-journaling',
+    title: 'Legacy Journaling: Writing Down the Stories Your Family Will Treasure',
+    category: 'Family & Legacy',
+    date: 'July 2026',
+    readTime: '5 min read',
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/about_desk_clean.png',
+    summary:
+      'Your memories, mistakes, and triumphs are an irreplaceable family heritage. Learn how simple weekly reflection prompts help you record your history without pressure.',
+    content: [
+      {
+        heading: '1. You Do Not Need to Be a Professional Writer',
+        body: 'The greatest obstacle to recording your memories is the misconception that you need literary brilliance. Your children and grandchildren do not want Shakespeare; they want your genuine voice, your humor, and your honest observations on life.',
+      },
+      {
+        heading: '2. The One-Question-Per-Week Method',
+        body: "Instead of staring at a blank 300-page notebook, answer one specific prompt per week: 'What was your favorite childhood meal?' 'What was the hardest decision of your 30s?' In one year, you will have completed a 52-chapter treasure of lived wisdom.",
+      },
+      {
+        heading: '3. The Therapeutic Ripple Effect',
+        body: 'Reviewing your past through writing provides profound emotional closure. It helps you recognize the thread of resilience that has carried you through difficult seasons, reinforcing your self-worth today.',
+      },
+    ],
+  },
+  {
+    id: 'energy-vitality-rhythms',
+    title: 'The Energy Equation: Sustaining Mental & Physical Vitality in Your Next Season',
+    category: 'Health & Energy',
+    date: 'June 2026',
+    readTime: '4 min read',
+    image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/mountain_lake.png',
+    summary:
+      'Discover how gentle daily movement, restorative sleep routines, and mindful eating fuel energetic mornings and sharper cognitive focus for decades ahead.',
+    content: [
+      {
+        heading: '1. Movement as Joy, Not Punishment',
+        body: 'Shift your relationship with exercise from exhausting gym sessions to consistent daily movement. A 30-minute brisk walk in fresh air, light mobility work, and stretching do more for longevity and joint health than sporadic intense workouts.',
+      },
+      {
+        heading: '2. Rest as a Non-Negotiable Foundation',
+        body: 'Quality sleep is when the brain cleanses metabolic waste and consolidates memories. Establish an evening wind-down ritual: dim the overhead lighting 60 minutes before bed, put away screens, and read physical books.',
+      },
+      {
+        heading: '3. Hydration and Brain Clarity',
+        body: 'Mild dehydration is the number-one hidden cause of mid-afternoon brain fog and sluggishness. Keeping a dedicated water carafe on your desk keeps energy steady without relying on endless refills of caffeine.',
+      },
+    ],
+  },
+  {
+    id: 'purpose-through-giving',
+    title: 'Purpose Through Giving: How Mentorship & Community Service Enrich Life',
+    category: 'Connection & Community',
+    date: 'May 2026',
+    readTime: '5 min read',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    fallbackImage: '/images/lifestyle_lake_backdrop.jpg',
+    summary:
+      'True joy in post-career life often comes from extending a hand. Explore how sharing your decades of experience with others creates lasting fulfillment.',
+    content: [
+      {
+        heading: '1. The Helper’s High Is Clinically Real',
+        body: 'Psychological studies consistently show that volunteering triggers the release of endorphins and oxytocin, reducing chronic stress and combatting the isolation that often accompanies life transitions.',
+      },
+      {
+        heading: '2. Mentoring the Rising Generation',
+        body: 'Young professionals and students are hungry for thoughtful guidance, calm perspective, and active listening. Offering an hour a week to mentor someone in your former field gives your past experience a vibrant second life.',
+      },
+      {
+        heading: '3. Finding Local Causes That Resonate',
+        body: 'Look around your neighborhood: community libraries, animal sanctuaries, literacy programs, and local food pantries all thrive on dedicated volunteer hearts. Start with one morning a month and watch your social circle expand.',
+      },
+    ],
+  },
 ];
 
 export const BlogSection: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  const categories = ['All', 'Purpose & Retirement', 'Daily Habits', 'Growth & Vitality', 'Family & Legacy', 'Health & Energy', 'Connection & Community'];
+
+  const filteredPosts =
+    selectedCategory === 'All'
+      ? BLOG_POSTS
+      : BLOG_POSTS.filter((p) => p.category === selectedCategory);
 
   return (
     <section id="blog" className="bg-[#F8FAFC] py-20 md:py-28 border-b border-stone-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="flex items-center justify-center space-x-3 text-xs font-semibold uppercase tracking-widest text-[#125688] mb-3">
             <span className="w-8 h-[1px] bg-[#125688]/40"></span>
             <span>FROM THE AUTHOR&apos;S DESK</span>
             <span className="w-8 h-[1px] bg-[#125688]/40"></span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0E1E31] tracking-tight leading-snug">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-[2.6rem] font-bold text-[#0E1E31] tracking-tight leading-snug">
             Articles & Practical Guides
           </h2>
 
           <p className="text-sm sm:text-base text-stone-600 mt-3 max-w-xl mx-auto leading-relaxed">
             Thoughtful insights, habit-building strategies, and reflective advice to help you build purpose and make every season of life count.
           </p>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-6">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-[#125688] text-white shadow-xs'
+                    : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50 hover:text-stone-900'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 3 Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-          {BLOG_POSTS.map((post) => (
+        {/* 6 Articles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          {filteredPosts.map((post) => (
             <article
               key={post.id}
               onClick={() => setSelectedPost(post)}
               className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer hover:-translate-y-1.5"
             >
-              {/* Card Header Image */}
-              <div className="relative h-48 w-full overflow-hidden bg-stone-100">
+              {/* Card Header Image with Error Fallback */}
+              <div className="relative h-52 w-full overflow-hidden bg-stone-100">
                 <img
                   src={post.image}
                   alt={post.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src !== post.fallbackImage) {
+                      target.src = post.fallbackImage;
+                    }
+                  }}
                 />
-                <div className="absolute top-4 left-4 bg-[#0E1E31]/90 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                <div className="absolute top-4 left-4 bg-[#0E1E31]/90 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
                   {post.category}
                 </div>
               </div>
@@ -204,6 +315,18 @@ export const BlogSection: React.FC = () => {
               </button>
             </div>
 
+            {/* Article Image Banner */}
+            <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden mb-6 bg-stone-100">
+              <img
+                src={selectedPost.image}
+                alt={selectedPost.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = selectedPost.fallbackImage;
+                }}
+              />
+            </div>
+
             {/* Article Title */}
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0E1E31] leading-tight mb-4">
               {selectedPost.title}
@@ -211,7 +334,7 @@ export const BlogSection: React.FC = () => {
 
             {/* Author Byline */}
             <div className="flex items-center space-x-3 pb-6 border-b border-stone-100 mb-6 text-xs text-stone-500">
-              <div className="w-7 h-7 rounded-full bg-[#125688]/10 text-[#125688] flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-full bg-[#125688]/10 text-[#125688] flex items-center justify-center font-bold">
                 A
               </div>
               <div>
