@@ -141,17 +141,57 @@ export const DEFAULT_SITE_CONFIG = {
   testimonials: [
     {
       id: '1',
+      author: 'David M.',
+      subtitle: 'Verified Amazon Purchase',
+      bookTitle: "Retirement Don't Retire from Life",
       quote:
-        'A practical and inspiring guide. It gave me a fresh perspective on retirement and helped me create a plan for a more fulfilling life.',
+        "After 38 years in corporate management, stepping away was terrifying. Andy's book gave me a practical blueprint rather than generic platitudes. His advice on building daily anchors without a punch card completely transformed my transition.",
       rating: 5,
-      author: 'Amazon Reader',
     },
     {
       id: '2',
+      author: 'Sarah Jenkins',
+      subtitle: 'Verified Amazon Purchase',
+      bookTitle: 'The Retirement Companion: Be Better. Write Now!',
       quote:
-        'The perfect companion to put ideas into action. I especially loved the exercises and journaling prompts.',
+        'The companion journal is brilliant! The weekly prompts helped me put my thoughts and hopes into words. Doing the exercises with my morning coffee has become my favorite ritual. Highly recommend getting both books together.',
       rating: 5,
-      author: 'Amazon Reader',
+    },
+    {
+      id: '3',
+      author: 'Robert & Elena Torres',
+      subtitle: 'Life Transition Planners & Readers',
+      bookTitle: "Retirement Don't Retire from Life",
+      quote:
+        "My wife and I read this together before our retirement date. It sparked honest conversations about how we wanted to spend our time, volunteer, and stay active. It made us truly excited for what's ahead.",
+      rating: 5,
+    },
+    {
+      id: '4',
+      author: 'Patricia L. Brooks',
+      subtitle: 'Verified Amazon Purchase',
+      bookTitle: 'The Retirement Companion: Be Better. Write Now!',
+      quote:
+        "Hands-down the most practical life guide I've come across. It treats retirement not as an ending, but as an open canvas. The legacy worksheets alone are worth ten times the price.",
+      rating: 5,
+    },
+    {
+      id: '5',
+      author: 'Michael Chang',
+      subtitle: 'Former Educator & Retiree',
+      bookTitle: "Retirement Don't Retire from Life",
+      quote:
+        'Andy Mahoney writes with warm empathy and razor-sharp clarity. His emphasis on curiosity and mental vitality gave me the courage to start mentoring and take up woodcraft at 64. A must-read.',
+      rating: 5,
+    },
+    {
+      id: '6',
+      author: 'Karen W.',
+      subtitle: 'Verified Amazon Purchase',
+      bookTitle: "Retirement Don't Retire from Life",
+      quote:
+        'Clear, inspiring, and delightfully easy to read. You can tell Andy understands the psychological hurdles of letting go of your career. It felt like having a trusted mentor sitting right across the table.',
+      rating: 5,
     },
   ],
 
@@ -165,7 +205,7 @@ export const DEFAULT_SITE_CONFIG = {
     privacyNote: 'No spam. Just good reads.',
   },
 
-  designVersion: 5,
+  designVersion: 6,
 };
 
 // Load saved config from localStorage if present

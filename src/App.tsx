@@ -143,7 +143,7 @@ export default function App() {
   }, []);
 
   const handleUpdateConfig = (newConfig: typeof SITE_CONFIG) => {
-    const versioned = { ...newConfig, designVersion: 5 };
+    const versioned = { ...newConfig, designVersion: 6 };
     setConfig(versioned);
     if (Array.isArray(versioned.books) && versioned.books.length > 0) {
       setBooks(versioned.books);

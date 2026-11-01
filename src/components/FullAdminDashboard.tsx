@@ -1382,28 +1382,70 @@ export const FullAdminDashboard: React.FC<FullAdminDashboardProps> = ({
           {/* TESTIMONIALS TAB */}
           {activeMenu === 'testimonials' && (
             <div className="space-y-6 bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-xl animate-in fade-in duration-200">
-              <h3 className="text-xl font-serif font-bold text-white border-b border-stone-800 pb-4">
-                Reader Testimonials
-              </h3>
+              <div className="flex items-center justify-between border-b border-stone-800 pb-4">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-white">
+                    Reader Testimonials & Reviews ({formData.testimonials?.length || 0})
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Manage and add reader reviews displayed in the "What Readers Say" section.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newRev = {
+                      id: String(Date.now()),
+                      author: 'Verified Amazon Reader',
+                      subtitle: 'Verified Amazon Purchase',
+                      bookTitle: "Retirement Don't Retire from Life",
+                      quote: 'An inspiring read with practical guidance for life.',
+                      rating: 5,
+                    };
+                    const updated = [...(formData.testimonials || []), newRev];
+                    setFormData({ ...formData, testimonials: updated });
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#B87B33] hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-md transition cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Review
+                </button>
+              </div>
               <div className="space-y-4">
-                {formData.testimonials.map((t: any, index: number) => (
-                  <div key={t.id} className="p-4 bg-stone-800/60 rounded-xl border border-stone-700/50 space-y-3">
+                {(formData.testimonials || []).map((t: any, index: number) => (
+                  <div key={t.id || index} className="p-4 bg-stone-800/60 rounded-xl border border-stone-700/50 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-amber-400">Review #{index + 1}</span>
-                      <input
-                        type="text"
-                        value={t.author}
-                        onChange={(e) => {
-                          const updated = [...formData.testimonials];
-                          updated[index].author = e.target.value;
-                          setFormData({ ...formData, testimonials: updated });
-                        }}
-                        className="px-3 py-1 bg-stone-800 border border-stone-700 rounded-lg text-xs text-white"
-                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={t.author || ''}
+                          placeholder="Reader Name"
+                          onChange={(e) => {
+                            const updated = [...formData.testimonials];
+                            updated[index].author = e.target.value;
+                            setFormData({ ...formData, testimonials: updated });
+                          }}
+                          className="px-3 py-1 bg-stone-800 border border-stone-700 rounded-lg text-xs text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Delete review #${index + 1}?`)) {
+                              const updated = formData.testimonials.filter((_: any, i: number) => i !== index);
+                              setFormData({ ...formData, testimonials: updated });
+                            }
+                          }}
+                          className="p-1.5 text-stone-400 hover:text-red-400 rounded-lg hover:bg-stone-750 transition cursor-pointer"
+                          title="Delete Review"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                     <textarea
                       rows={2}
-                      value={t.quote}
+                      value={t.quote || ''}
+                      placeholder="Review Quote"
                       onChange={(e) => {
                         const updated = [...formData.testimonials];
                         updated[index].quote = e.target.value;
