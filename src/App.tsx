@@ -14,7 +14,6 @@ import { SearchModal } from './components/SearchModal';
 import { CartModal } from './components/CartModal';
 import { FullAdminDashboard } from './components/FullAdminDashboard';
 import { BookInfo, DEFAULT_SITE_CONFIG, SITE_CONFIG } from './data/siteConfig';
-import { Settings } from 'lucide-react';
 import { loadSiteConfig, getSyncSiteConfig, saveSiteConfig } from './lib/storage';
 import { isSupabaseConfigured, loadConfigFromSupabase, saveConfigToSupabase } from './lib/supabase';
 import { AdminAuthModal } from './components/AdminAuthModal';
@@ -99,8 +98,19 @@ export default function App() {
     }
   }, [config]);
 
-  // Listen for Ctrl + Shift + E shortcut to prompt password and open admin panel
+  // Listen for Ctrl + Shift + E shortcut or #admin / ?admin URL to prompt password and open admin panel
   useEffect(() => {
+    const checkUrlForAdmin = () => {
+      const hash = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      if (hash === '#admin' || hash === '#/admin' || params.has('admin')) {
+        setIsAuthModalOpen(true);
+      }
+    };
+
+    checkUrlForAdmin();
+    window.addEventListener('hashchange', checkUrlForAdmin);
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
@@ -116,7 +126,10 @@ export default function App() {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('hashchange', checkUrlForAdmin);
+    };
   }, []);
 
   // Monitor active scroll section for navbar highlight
@@ -185,7 +198,16 @@ export default function App() {
       <FullAdminDashboard
         config={config}
         onUpdateConfig={handleUpdateConfig}
-        onExitAdmin={() => setIsAdminOpen(false)}
+        onExitAdmin={() => {
+          setIsAdminOpen(false);
+          if (window.location.hash.toLowerCase() === '#admin' || window.location.hash.toLowerCase() === '#/admin') {
+            try {
+              history.replaceState(null, '', window.location.pathname + window.location.search.replace(/[?&]admin\b/gi, ''));
+            } catch {
+              window.location.hash = '';
+            }
+          }
+        }}
       />
     );
   }
@@ -234,25 +256,7 @@ export default function App() {
         onOpenTerms={() => setPolicyType('terms')}
       />
 
-      {/* Floating Admin Trigger Button (Bottom Right) */}
-      <button
-        onClick={() => {
-          if (isAdminOpen) {
-            setIsAdminOpen(false);
-          } else {
-            setIsAuthModalOpen(true);
-          }
-        }}
-        className="fixed bottom-6 right-6 z-40 bg-[#0E1E31] hover:bg-[#1A2D44] text-white p-3.5 rounded-full shadow-xl flex items-center justify-center group transition-all duration-300 hover:scale-105 border border-stone-700 cursor-pointer"
-        title="Open Admin Dashboard (Ctrl + Shift + E)"
-      >
-        <Settings className="w-5 h-5 text-[#B87B33] animate-spin-slow" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out text-xs font-medium pl-0 group-hover:pl-2">
-          Admin Dashboard (Ctrl+Shift+E)
-        </span>
-      </button>
-
-      {/* Password Protection Modal for Admin Dashboard */}
+      {/* Password Protection Modal for Admin Dashboard (Accessible via Ctrl+Shift+E or #admin) */}
       <AdminAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
