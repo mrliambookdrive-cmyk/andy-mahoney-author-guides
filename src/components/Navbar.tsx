@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Search, ShoppingCart } from 'lucide-react';
 import { SITE_CONFIG } from '../data/siteConfig';
+import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
   onOpenContact: () => void;
@@ -48,22 +49,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18 sm:h-20">
-          {/* Brand Logo & Subtitle */}
+          {/* Brand Logo & Subtitle — Pure vector and typography (No image) */}
           <a
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
               scrollTo('hero');
             }}
-            className="flex items-center space-x-3 group text-left cursor-pointer"
+            className="flex items-center group text-left cursor-pointer"
+            aria-label="Andy Mahoney — Books That Build a Better You"
           >
-            <div className="h-10 sm:h-11 flex items-center">
-              <img
-                src="/images/site_logo.png"
-                alt="Andy Mahoney — Books That Build a Better You"
-                className="h-9 sm:h-10 w-auto object-contain"
-              />
-            </div>
+            <BrandLogo />
           </a>
 
           {/* Center Navigation Links */}

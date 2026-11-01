@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Facebook, Instagram, Youtube } from 'lucide-react';
 import { SITE_CONFIG } from '../data/siteConfig';
+import { BrandLogo } from './BrandLogo';
 
 interface FooterProps {
   onOpenContact: () => void;
@@ -31,7 +32,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Main Footer Header / Navigation Row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6">
           
-          {/* Brand Logo Lockup */}
+          {/* Brand Logo Lockup — Pure vector & typography */}
           <div className="flex items-center">
             <a
               href="#hero"
@@ -39,16 +40,10 @@ export const Footer: React.FC<FooterProps> = ({
                 e.preventDefault();
                 scrollTo('hero');
               }}
-              className="flex items-center space-x-2.5 cursor-pointer group"
+              className="cursor-pointer group"
+              aria-label="Andy Mahoney"
             >
-              <img
-                src="/images/brand_icon.png"
-                alt="Andy Mahoney"
-                className="h-6 w-auto object-contain brightness-0 invert opacity-95 group-hover:opacity-100 transition-opacity"
-              />
-              <span className="font-serif text-lg font-bold tracking-tight text-white group-hover:text-stone-100 transition-colors">
-                Andy Mahoney
-              </span>
+              <BrandLogo variant="dark" />
             </a>
           </div>
 
