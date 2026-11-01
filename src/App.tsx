@@ -278,6 +278,7 @@ export default function App() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         books={books}
+        onSelectBook={handleOpenBookAmazon}
       />
 
       <ContactModal
